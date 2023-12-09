@@ -11,7 +11,7 @@ local default_badge_picture_scale  = 10/64
 local default_badge_image_size     = 64
 
 -- Structure Variables
-local filepath       = "__elemental-badges__/graphics/badges/"
+local filepath       = "__icon-badges__/graphics/badges/"
 local char_whitelist = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
 
 -- Settings variables and parsing
