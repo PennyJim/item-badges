@@ -19,9 +19,15 @@
 
 ## For Modders
 Good news! This is super duper easy to use. To add a badge to any item or recipe, add the following properties to any item or recipe prototype:
-1. **ib_badge** : A 1 or 2 character string, consisting of lower- or upper-case letters or numbers (nothing else!). Valid examples: "AB", "aB", "Ab", "A", "b", "1A", "1".
-2. **ib_invert** : (optional) Set to anything that isn't 'nil' to invert the text. By default, badges are 'white text with black borders'. To help with collisions, I've also supplied 'black text with white borders.' It's both-or-neither; it's not possible to have one character inverted and another not.
-3. **ib_corner** : (optional) (recipe ONLY) This moves the **recipe** badge in one of the four corners instead of the upper left. (note: this doesn't work for items, as any corner that isn't left-top won't always be visible when the item is on belts) Set to one of the following EXACTLY as shown:
+
+1. **ib_badge** :
+   Must be a 1 or 2 character string, consisting of lower- or upper-case letters or numbers (nothing else!). Valid examples: "AB", "aB", "Ab", "A", "b", "1A", "1".
+
+2. **ib_invert** :
+   *(optional)* Set to anything that isn't 'nil' to invert the text. By default, badges are 'white text with black borders'. To help with collisions, I've also supplied 'black text with white borders.' It's both-or-neither; it's not possible to have one character inverted and another not.
+
+3. **ib_corner** :
+   *(optional) (recipe ONLY)* This moves the **recipe** badge in one of the four corners instead of the upper left. (note: this doesn't work for items, as any corner that isn't left-top won't always be visible when the item is on belts) Set to one of the following EXACTLY as shown:
   - "left-top"     (default)
   - "left-bottom"
   - "right-top"
