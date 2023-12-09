@@ -4,7 +4,7 @@ data:extend({
     name = "ib-show-badges",
     setting_type = "startup",
     default_value = "All",
-    allowed_values = {"Inventory", "All"},
+    allowed_values = {"Only GUI", "All"},
   },
   { -- Badge Scale
     type = "string-setting",

@@ -144,7 +144,7 @@ badgeList["capsule"] = {
   ["slowdown-capsule"]                = {badge = "SC", },
 
   -- Specialty
-  ["cliff-explosives"]                = {badge = "NR", },
+  ["cliff-explosives"]                = {badge = "CE", },
 }
 
 badgeList["blueprint"] = {
@@ -190,3 +190,21 @@ badgeList["recipe"] = {
 }
 
 Process_badges(badgeList)
+
+--[[
+  
+-- This stuff is just for the supplementary images on the mod page
+
+-- IGNORE YELLOW SQUIGGLIES; that's just FMTK and VS Code. It works.
+
+-- Adds the badge "St" to all Stone items
+data.raw.item["stone"].ib_badge = "St"
+
+-- Adds the badge "Co", with inverted text shades, to all Coal items
+data.raw.item["coal"].ib_badge = "Co"
+data.raw.item["coal"].ib_invert = "whatever"
+
+-- Adds the badge "Fe" to the iron plate recipe in the left-bottom corner
+data.raw.recipe["nuclear-fuel"].ib_badge = "NF"
+data.raw.recipe["nuclear-fuel"].ib_corner = "left-bottom"
+--]]

@@ -5,7 +5,6 @@ local default_badge_icon_scale     = .3125
 
 local default_badge_shift_pictures = {0.6, 0.5}
 
-
 local default_badge_picture_scale  = 10/64
 
 local default_badge_image_size     = 64
@@ -169,6 +168,12 @@ end
 for _, groupName in pairs(item_types) do
   for name, item in pairs(data.raw[groupName]) do
 
+    -- There are so many cases.
+    -- Items can have none, some, or all of: 'icon', 'icons' or 'pictures'.
+    -- Pictures can be one of four-ish things: a spritesheet, a struct with a sheet = spritesheet property, a single layers = array entry, or an array of things that have layers = array.
+    -- If "Only GUI" is picked, then all items and recipes gets an 'icons' with badges and 'pictures' without.
+    -- If "Only Belts" is picked, icons aren't touched but every item gets 'pictures' with badges added.
+
     local is_good = false
 
     if item.ib_badge and type(item.ib_badge) == "string" and (#item.ib_badge == 1 or #item.ib_badge == 2) then
@@ -196,7 +201,6 @@ for _, groupName in pairs(item_types) do
             icon_mipmaps = item.icon_mipmaps
           }
         }
-        -- item.icon = nil
       end
       
       local invert = ""
@@ -210,7 +214,6 @@ for _, groupName in pairs(item_types) do
 
       -- One letter badge
       if #item.ib_badge == 1 then
-        -- function signature: Build_single_badge_icon(letter, case, invert, mipmap, justify, scale, size, shift)
         case = get_case(item.ib_badge)
         item.icons[#item.icons + 1] = Build_single_badge_icon(item.ib_badge, case, invert, "center", corner)
         item.icons[#item.icons].is_badge_layer = true
@@ -232,7 +235,7 @@ for _, groupName in pairs(item_types) do
       -- pictures
       -- ********
       
-      if ib_show_badges == "Inventory" then
+      if ib_show_badges == "Only GUI" then
         if not item.pictures then
           item.pictures = {
             layers = {}
@@ -285,7 +288,6 @@ for _, groupName in pairs(item_types) do
               Build_badge_pictures(picture, item.ib_badge, invert)
             end
           end
-
         end
       end
     end
