@@ -2,10 +2,10 @@
 function Process_badges(currentBadgeList)
   for subListName, subList in pairs(currentBadgeList) do
     for itemName, itemBadge in pairs(subList) do
-      if data.raw[subListName][itemName] then
-        data.raw[subListName][itemName].ib_badge = itemBadge.badge
-        data.raw[subListName][itemName].ib_invert = itemBadge.invert
-        data.raw[subListName][itemName].ib_corner = itemBadge.corner
+      if data.raw[subListName][itemName] and not data.raw[subListName][itemName].ib_badge then
+        data.raw[subListName][itemName].ib_badge      = itemBadge.badge
+        data.raw[subListName][itemName].ib_invert     = itemBadge.invert
+        data.raw[subListName][itemName].ib_corner     = itemBadge.corner
       end
     end
   end
@@ -81,7 +81,12 @@ badgeList["item"] = {
   ["personal-roboport-mk2-equipment"] = {badge = "2",  },
 
   -- Misc
-  ["explosives"]                      = {badge = "E",  }
+  ["explosives"]                      = {badge = "E",  },
+  
+  -- Test
+  ["plastic-bar"] = {badge = "Pl"},
+  ["steel-plate"] = {badge = "SP"},
+  ["sulfur"]      = {badge = "Su"},
 }
 
 badgeList["tool"] = {
@@ -159,31 +164,39 @@ badgeList["deconstruction-item"] = {
   ["deconstruction-planner"]          = {badge = "D",  },
 }
 
-local testCorner = "left-bottom"
+badgeList["fluid"] = {
+  ["crude-oil"]                = {badge = "C",  },
+  ["water"]                    = {badge = "W",  },
+  ["light-oil"]                = {badge = "L",  },
+  ["heavy-oil"]                = {badge = "H",  },
+  ["lubricant"]                = {badge = "Lu"  },
+  ["petroleum-gas"]            = {badge = "P",  },
+  ["sulfuric-acid"]            = {badge = "SA", },
+}
 
 badgeList["recipe"] = {
   -- Fill Barrels
-  ["fill-crude-oil-barrel"]                 = {badge = "C",  corner = testCorner},
-  ["fill-water-barrel"]                     = {badge = "W",  corner = testCorner},
-  ["fill-light-oil-barrel"]                 = {badge = "L",  corner = testCorner},
-  ["fill-heavy-oil-barrel"]                 = {badge = "H",  corner = testCorner},
-  ["fill-lubricant-barrel"]                 = {badge = "Lu", corner = testCorner},
-  ["fill-petroleum-gas-barrel"]             = {badge = "P",  corner = testCorner},
-  ["fill-sulfuric-acid-barrel"]             = {badge = "SA", corner = testCorner},
+  ["fill-crude-oil-barrel"]                 = {badge = "C",  corner = "left-bottom"},
+  ["fill-water-barrel"]                     = {badge = "W",  corner = "left-bottom"},
+  ["fill-light-oil-barrel"]                 = {badge = "L",  corner = "left-bottom"},
+  ["fill-heavy-oil-barrel"]                 = {badge = "H",  corner = "left-bottom"},
+  ["fill-lubricant-barrel"]                 = {badge = "Lu", corner = "left-bottom"},
+  ["fill-petroleum-gas-barrel"]             = {badge = "P",  corner = "left-bottom"},
+  ["fill-sulfuric-acid-barrel"]             = {badge = "SA", corner = "left-bottom"},
 
   -- Empty Barrels
-  ["empty-crude-oil-barrel"]                = {badge = "C",  corner = testCorner},
-  ["empty-water-barrel"]                    = {badge = "W",  corner = testCorner},
-  ["empty-light-oil-barrel"]                = {badge = "L",  corner = testCorner},
-  ["empty-heavy-oil-barrel"]                = {badge = "H",  corner = testCorner},
-  ["empty-lubricant-barrel"]                = {badge = "Lu", corner = testCorner},
-  ["empty-petroleum-gas-barrel"]            = {badge = "P",  corner = testCorner},
-  ["empty-sulfuric-acid-barrel"]            = {badge = "SA", corner = testCorner},
+  ["empty-crude-oil-barrel"]                = {badge = "C",  corner = "left-bottom"},
+  ["empty-water-barrel"]                    = {badge = "W",  corner = "left-bottom"},
+  ["empty-light-oil-barrel"]                = {badge = "L",  corner = "left-bottom"},
+  ["empty-heavy-oil-barrel"]                = {badge = "H",  corner = "left-bottom"},
+  ["empty-lubricant-barrel"]                = {badge = "Lu", corner = "left-bottom"},
+  ["empty-petroleum-gas-barrel"]            = {badge = "P",  corner = "left-bottom"},
+  ["empty-sulfuric-acid-barrel"]            = {badge = "SA", corner = "left-bottom"},
 
   -- Solid Fuel
-  ["solid-fuel-from-light-oil"]             = {badge = "L",  corner = testCorner},
-  ["solid-fuel-from-heavy-oil"]             = {badge = "H",  corner = testCorner},
-  ["solid-fuel-from-petroleum-gas"]         = {badge = "P",  corner = testCorner},
+  ["solid-fuel-from-light-oil"]             = {badge = "L",  corner = "left-bottom"},
+  ["solid-fuel-from-heavy-oil"]             = {badge = "H",  corner = "left-bottom"},
+  ["solid-fuel-from-petroleum-gas"]         = {badge = "P",  corner = "left-bottom"},
 
   -- Misc
   ["nuclear-fuel"]                          = {badge = "NF", },

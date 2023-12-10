@@ -1,11 +1,14 @@
+-- debug
+badge_scale_test = false
+
 -- Graphical variables
-local default_badge_shift_icon     = {-13, -13}
-local default_badge_icon_shift     = 5.5 -- FIXME: WHAT HAPPENED HERE
+local default_badge_shift_icon          = {-13, -13}
+local default_badge_shift_icon_adjust   = {5.5, 5.5} -- FIXME: WHAT HAPPENED HERE
+
 local default_badge_icon_scale     = .3125
+local default_badge_picture_scale  = default_badge_icon_scale / 2
 
-local default_badge_shift_pictures = {0.6, 0.5}
-
-local default_badge_picture_scale  = 10/64
+local default_badge_shift_pictures = {0.25, 0.25}
 
 local default_badge_image_size     = 64
 
@@ -53,6 +56,7 @@ local item_types = {
   "tool",
   "armor",
   "spidertron-remote",
+  "fluid", -- fluids
   "item-with-entity-data", -- entities
   "item-with-tags", -- tools and planners
   "repair-tool",
@@ -69,42 +73,35 @@ local item_types = {
   "recipe", -- recipes
 }
 
+local function corner_to_direction(corner)
+  local direction = {1, 1}
+  if corner == "left-bottom" then
+    direction = {1, -1}
+  end
+  if corner == "right-bottom" then
+    direction = {-1, -1}
+  end
+  if corner == "left-top" then
+    direction = {1, 1}
+  end
+  if corner == "right-top" then
+    direction = {-1, 1}
+  end
+  return direction
+end
+
 -- Helper Functions
 function Build_single_badge_icon(letter, case, invert, justify, corner)
   -- Credit to Elusive for helping with badges
-  local shift = {}
-
-  if corner == "left-bottom" then
-    shift = {
-       default_badge_shift_icon[1] + (user_badge_scale * default_badge_icon_shift),
-      -default_badge_shift_icon[2] - (user_badge_scale * default_badge_icon_shift)
+  local direction = corner_to_direction(corner)
+  local shift = {
+      direction[1] * (default_badge_shift_icon[1] + (user_badge_scale * default_badge_shift_icon_adjust[1] / 2)),
+      direction[2] * (default_badge_shift_icon[2] + (user_badge_scale * default_badge_shift_icon_adjust[2] / 2))
     }
-  end
-
-  if corner == "right-bottom" then
-    shift = {
-      -default_badge_shift_icon[1] -(user_badge_scale * default_badge_icon_shift),
-      -default_badge_shift_icon[2] -(user_badge_scale * default_badge_icon_shift)
-    }
-  end
-
-  if corner == "left-top" then
-    shift = {
-      default_badge_shift_icon[1] + (user_badge_scale * default_badge_icon_shift),
-      default_badge_shift_icon[2] + (user_badge_scale * default_badge_icon_shift)
-    }
-  end
-
-  if corner == "right-top" then
-    shift = {
-      -default_badge_shift_icon[1] - (user_badge_scale * default_badge_icon_shift),
-       default_badge_shift_icon[2] + (user_badge_scale * default_badge_icon_shift)
-    }
-  end
   return {
     -- blend_mode = "multiplicative-with-alpha",
     -- tint = {r = 1, b = 1, g = 1, a = ib_badge_opacity},
-    scale = default_badge_icon_scale * user_badge_scale ,
+    scale = user_badge_scale * default_badge_icon_scale,
     icon = filepath .. mipmaps .. "/" .. mipmaps .. "-" .. justify .. "-" .. case .. letter .. invert .. ".png", 
     icon_size = default_badge_image_size,
     icon_mipmaps = mipmapNums,
@@ -112,8 +109,14 @@ function Build_single_badge_icon(letter, case, invert, justify, corner)
   }
 end
 
-function Build_single_badge_pictures(letter, case, invert, justify)
+function Build_single_badge_pictures(letter, case, invert, justify, corner)
   -- Credit to Elusive for helping with badges
+  local direction = corner_to_direction(corner)
+  local shift = {
+    - direction[1] * (default_badge_shift_pictures[1] - (user_badge_scale * default_badge_picture_scale / 2)),
+    - direction[2] * (default_badge_shift_pictures[2] - (user_badge_scale * default_badge_picture_scale / 2)),
+  }
+
   return {
     -- blend_mode = "multiplicative-with-alpha",
     -- tint = {r = 1, b = 1, g = 1, a = ib_badge_opacity},
@@ -121,10 +124,7 @@ function Build_single_badge_pictures(letter, case, invert, justify)
     filename = filepath .. mipmaps .. "/" .. mipmaps .. "-" .. justify .. "-" .. case .. letter .. invert .. ".png",
     size = default_badge_image_size,
     mipmap_count = mipmapNums,
-    shift = {
-      -default_badge_shift_pictures[1] * 0.5 + (user_badge_scale * default_badge_picture_scale),
-      -default_badge_shift_pictures[2] * 0.5 + (user_badge_scale * default_badge_picture_scale)
-    }
+    shift = shift
   }
 end
 
@@ -136,7 +136,7 @@ local function get_case(char)
   return case
 end
 
-function Build_badge_pictures(picture, badge, invert, repeat_count)
+function Build_badge_pictures(picture, badge, invert, repeat_count, corner, testName)
   if not picture.layers then
     local newLayer = table.deepcopy(picture)
     picture.layers = {newLayer}
@@ -144,8 +144,9 @@ function Build_badge_pictures(picture, badge, invert, repeat_count)
 
   if #badge == 1 then
     case = get_case(badge)
-    picture.layers[#picture.layers + 1] = Build_single_badge_pictures(badge, case, invert, "center")
+    picture.layers[#picture.layers + 1] = Build_single_badge_pictures(badge, case, invert, "center", corner)
     picture.layers[#picture.layers].repeat_count = repeat_count
+    picture.layers[#picture.layers].is_badge_layer = true
   end
 
   -- Two letter badge
@@ -154,12 +155,40 @@ function Build_badge_pictures(picture, badge, invert, repeat_count)
     local second = badge:sub(2,2)
 
     case = get_case(first)
-    picture.layers[#picture.layers + 1] = Build_single_badge_pictures(first, case, invert, "left")
+    picture.layers[#picture.layers + 1] = Build_single_badge_pictures(first, case, invert, "left", corner)
     picture.layers[#picture.layers].repeat_count = repeat_count
+    picture.layers[#picture.layers].is_badge_layer = true
 
     case = get_case(second)
-    picture.layers[#picture.layers + 1] = Build_single_badge_pictures(second, case, invert, "right")
+    picture.layers[#picture.layers + 1] = Build_single_badge_pictures(second, case, invert, "right", corner)
     picture.layers[#picture.layers].repeat_count = repeat_count
+    picture.layers[#picture.layers].is_badge_layer = true
+  end
+  if badge_scale_test then
+    local test_scale = 1
+    local testList = {
+      "iron-ore",
+      "copper-ore",
+      "uranium-ore",
+      "coal",
+      "stone",
+    }
+    if testName == testList[1] then test_scale = default_badge_picture_scale * user_badge_scale_table["Tiny"] end
+    if testName == testList[2] then test_scale = default_badge_picture_scale * user_badge_scale_table["Small"] end
+    if testName == testList[3] then test_scale = default_badge_picture_scale * user_badge_scale_table["Average"] end
+    if testName == testList[4] then test_scale = default_badge_picture_scale * user_badge_scale_table["Big"] end
+    if testName == testList[5] then test_scale = default_badge_picture_scale * user_badge_scale_table["Why"] end
+    
+    local doTest = false
+    for _, v in pairs(testList) do
+      if testName == v then doTest = true end
+    end
+
+    if doTest then
+      for _, layer in pairs(picture.layers) do
+        if layer.is_badge_layer then layer.scale = test_scale end
+      end
+    end
   end
 end
 
@@ -184,11 +213,20 @@ for _, groupName in pairs(item_types) do
     end
     
     if is_good then
-      local global_icon_size = 0
-      if item.icon_size then global_icon_size = item.icon_size end
 
-      local global_icon_mipmaps = 0
-      if item.icon_mipmaps then global_icon_mipmaps = item.icon_mipmaps end
+      -- If recipe without an icon ...
+      if groupName == "recipe" and ((not item.icon) and (not item.icons)) then
+        local product
+        -- Either there's one product, or there's 'main product'
+        if item.result then product = data.raw.item[item.result] end
+        if item.results and #item.results == 1 then product = data.raw.item[item.results[1].name] end
+        if item.main_product then product = data.raw.item[item.main_product] end
+        -- Fill in anything
+        if not item.icon then item.icon = product.icon end
+        if not item.icons then item.icons = product.icons end
+        if not item.icon_size then item.icon_size = product.icon_size end
+        if not item.icon_mipmaps then item.icon_mipmaps = product.icon_mipmaps end
+      end
 
       -- icon
       -- ****
@@ -213,14 +251,14 @@ for _, groupName in pairs(item_types) do
       -- *****
 
       -- One letter badge
-      if #item.ib_badge == 1 then
+      if #item.ib_badge == 1 and ib_show_badges ~= "Only Belts" then
         case = get_case(item.ib_badge)
         item.icons[#item.icons + 1] = Build_single_badge_icon(item.ib_badge, case, invert, "center", corner)
         item.icons[#item.icons].is_badge_layer = true
       end
 
       -- Two letter badge
-      if #item.ib_badge == 2 then
+      if #item.ib_badge == 2 and ib_show_badges ~= "Only Belts" then
         local first = item.ib_badge:sub(1,1)
         local second = item.ib_badge:sub(2,2)
 
@@ -231,11 +269,40 @@ for _, groupName in pairs(item_types) do
         item.icons[#item.icons + 1] = Build_single_badge_icon(second, case, invert, "right", corner)
         item.icons[#item.icons].is_badge_layer = true
       end
+      
+      -- debug
+      if badge_scale_test then 
+        local test_scale = 1
+        local testList = {
+          "iron-plate",
+          "copper-plate",
+          "steel-plate",
+          "plastic-bar",
+          "sulfur",
+        }
+        if name == testList[1] then test_scale = default_badge_icon_scale * user_badge_scale_table["Tiny"] end
+        if name == testList[2] then test_scale = default_badge_icon_scale * user_badge_scale_table["Small"] end
+        if name == testList[3] then test_scale = default_badge_icon_scale * user_badge_scale_table["Average"] end
+        if name == testList[4] then test_scale = default_badge_icon_scale * user_badge_scale_table["Big"] end
+        if name == testList[5] then test_scale = default_badge_icon_scale * user_badge_scale_table["Why"] end
+        
+        local doTest = false
+        for _, v in pairs(testList) do
+          if name == v then doTest = true end
+        end
+
+        if doTest then
+          for _, icon in pairs(item.icons) do
+            if icon.is_badge_layer then icon.scale = test_scale end
+          end
+        end
+      end
 
       -- pictures
       -- ********
       
       if ib_show_badges == "Only GUI" then
+        -- No belt items can have badges. They're absent in pictures by default. Make pictures layers out of icons data without badges.
         if not item.pictures then
           item.pictures = {
             layers = {}
@@ -255,7 +322,9 @@ for _, groupName in pairs(item_types) do
             end
           end
         end
-      else
+      end
+      if ib_show_badges ~= "Only GUI" then
+        -- All belt items need badges. Icons will already have them. Add badges to things with pictures.
         if item.pictures then
           -- If item.pictures is just one layers thingie
           if item.pictures.sheet then
@@ -281,19 +350,37 @@ for _, groupName in pairs(item_types) do
               }
             end
             local sheet = item.pictures.layers[1]
-            Build_badge_pictures(item.pictures, item.ib_badge, invert, (sheet.variation_count or 1) * (sheet.repeat_count or 1))
+            Build_badge_pictures(item.pictures, item.ib_badge, invert, (sheet.variation_count or 1) * (sheet.repeat_count or 1), corner, name)
           else
             -- if item.pictures is an array of {layer-having-thingies}
             for i, picture in pairs(item.pictures) do
-              Build_badge_pictures(picture, item.ib_badge, invert)
+              Build_badge_pictures(picture, item.ib_badge, invert, 1, corner, name)
             end
+          end
+        end
+        if not item.pictures then
+          item.pictures = {
+            layers = {}
+          }
+          for _, icon in pairs(item.icons) do
+            if not icon.is_badge_layer then
+              local icon_size = item.icon_size or icon.size
+              icon_scale = .25
+              local newLayer = {}
+              for k, v in pairs(icon) do
+                newLayer[k] = v
+              end
+              newLayer.filename = icon.icon
+              newLayer.size = icon_size
+              newLayer.scale = icon_scale
+              table.insert(item.pictures.layers, newLayer)
+            end
+          end
+          for i, layer in pairs(item.pictures.layers) do
+            Build_badge_pictures(layer, item.ib_badge, invert, 1, corner, name)
           end
         end
       end
     end
   end
 end
-local what = 1
-
-
-

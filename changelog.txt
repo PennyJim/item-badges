@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.3
+Date: 12-09-2023
+  Changes:
+    - Fluids can now be 'badged' properly
+    - Badges for items (not just recipes) can be put in all 4 corners
+    - Added "Only Belts" option; "Inventory" is now renamed "Only GUI"
+---------------------------------------------------------------------------------------------------
 Version: 1.0.2
 Date: 12-09-2023
   Changes:
