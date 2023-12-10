@@ -6,7 +6,8 @@
 
 ### The settings
 **Show Badges:**
-  - Inventory: The mod will display badges ONLY in GUI screens (inventory, craftable recipes, etc.).
+  - Only GUI: The mod will display badges ONLY in GUI screens (inventory, craftable recipes, etc.).
+  - Only Belts: The mod will display badges ONLY on belts, and NOT GUI screens
   - All: The mod will display badges in GUI screens AND on belts.
 
 **Badge Scale:**
