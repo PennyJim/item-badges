@@ -36,4 +36,6 @@ Good news! This is super duper easy to use. To add a badge to any item or recipe
 
 I add badges in data-final-fixes.lua. As long as you add those properties to your items or recipes before then -- either by using data.lua, data-updates.lua, or making my mod an optional dependency of yours, it should work. You shouldn't have to fuss with anything else.
 
+If you badge-up a recipe that draw their icon(s) data from its product, and that product has already been badged, you'll get a double-badge. For max compatibility, just badge-up the product item.
+
 I've tried to make the system as robust as possible, but due to how many ways items and recipes can be displayed in their prototypes, you may find some case that I don't handle. Submit an issue on GitHub, and I'll take a look. :)
