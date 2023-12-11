@@ -20,11 +20,11 @@ data:extend({
     default_value = "Medium",
     allowed_values = {"Far", "Medium", "Near"},
   },
-  -- { -- Badge Opacity
-  --   type = "double-setting",
-  --   name = "ib-badge-opacity",
-  --   setting_type = "startup",
-  --   default_value = 1.0,
-  --   allowed_values = {0.2, 0.4, 0.7, 1.0},
-  -- },
+  { -- Badge Opacity
+    type = "double-setting",
+    name = "ib-badge-opacity",
+    setting_type = "startup",
+    default_value = 1.0,
+    allowed_values = {0.25, 0.5, 0.75, 1.0},
+  },
 })

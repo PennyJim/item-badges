@@ -19,8 +19,7 @@ local char_whitelist                    = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJK
 -- Settings variables 
 local ib_show_badges       = settings.startup["ib-show-badges"].value
 local ib_show_badges_scale = settings.startup["ib-show-badges-scale"].value
--- local ib_badge_opacity     = settings.startup["ib-badge-opacity"].value 
-local ib_badge_opacity = 1 -- FIXME: Opacity doesn't work right
+local ib_badge_opacity     = settings.startup["ib-badge-opacity"].value
 local ib_zoom_visibility   = settings.startup["ib-zoom-visibility"].value
 
 -- Parsing Badge Scale
@@ -76,6 +75,8 @@ local item_types = {
   "recipe", -- recipes
 }
 
+
+
 -- Helper Functions
 -- ****************
 
@@ -114,8 +115,7 @@ function Build_single_badge_icon(letter, case, invert, justify, corner)
       direction[2] * (default_badge_shift_icon[2] + (user_badge_scale * default_badge_shift_icon_adjust[2] / 2))
     }
   return {
-    -- blend_mode = "multiplicative-with-alpha",
-    -- tint = {r = 1, b = 1, g = 1, a = ib_badge_opacity},
+    tint = {r = ib_badge_opacity, b = ib_badge_opacity, g = ib_badge_opacity, a = ib_badge_opacity},
     scale = user_badge_scale * default_badge_icon_scale,
     icon = filepath .. mipmaps .. "/" .. mipmaps .. "-" .. justify .. "-" .. case .. letter .. invert .. ".png", 
     icon_size = badge_image_size,
@@ -133,8 +133,7 @@ function Build_single_badge_pictures(letter, case, invert, justify, corner)
   }
 
   return {
-    -- blend_mode = "multiplicative-with-alpha",
-    -- tint = {r = 1, b = 1, g = 1, a = ib_badge_opacity},
+    tint = {r = ib_badge_opacity, b = ib_badge_opacity, g = ib_badge_opacity, a = ib_badge_opacity},
     scale = user_badge_scale * default_badge_scale_picture,
     filename = filepath .. mipmaps .. "/" .. mipmaps .. "-" .. justify .. "-" .. case .. letter .. invert .. ".png",
     size = badge_image_size,
@@ -172,6 +171,8 @@ function Build_badge_pictures(picture, badge, invert, repeat_count, corner, test
     picture.layers[#picture.layers].is_badge_layer = true
   end
 end
+
+
 
 -- Generate Badges
 -- ***************
@@ -281,7 +282,7 @@ for _, groupName in pairs(item_types) do
       -- pictures
       -- ********
       
-      -- Case 1: No belt items can have badges. They're absent in pictures by default. Make pictures layers out of icons data without badges.
+      -- Case: No belt items can have badges. They're absent in pictures by default. Make pictures layers out of icons data without badges.
       if ib_show_badges == "Only GUI" then
         if not item.pictures then
           item.pictures = {
@@ -304,7 +305,7 @@ for _, groupName in pairs(item_types) do
         end
       end
 
-      -- Case 2: All belt items need badges. Icons will already have them. Add badges to things with pictures.
+      -- Case: All belt items need badges. Icons will already have them. Add badges to things with pictures.
       if ib_show_badges ~= "Only GUI" then
         
         -- If there's picture data already, it's four of the four cases. We'll handle them one at a time.

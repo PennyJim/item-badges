@@ -18,6 +18,12 @@
   - Medium: Badges are visible from a medium distance, but will fade out past that.
   - Near: Badges are visible when zoomed in near the ground, but will fade out past that.
 
+**Badge Opacity:**
+  - How opaque should the badges be when fully diplayed (1 = fully visible, 0 = fully transparent)?
+
+Hint: In game, if you press F4 and check 'allow increased zoom' (third from the last option at the time of writing), you can zoom in very close to read the badges.
+Hint Corollary : Those are debug options. They shouldn't melt your game, but tread lightly when tinkering.
+
 ## For Modders
 Good news! This is super duper easy to use. To add a badge to any item or recipe, add the following properties to any item or recipe prototype:
 
