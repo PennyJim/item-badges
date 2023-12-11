@@ -4,6 +4,9 @@
 ## For users
 **Item Badges** adds specific two-letter identifiers to certain items and recipes. For Vanilla Factorio, it includes all items that have the same shape but different colors, like barreled fluids, electronic circuits, and weapon magazines. For element-based items (copper, iron, etc.), I used identifiers from the periodic table. For items whose proper names are commonly used (light oil, shotgun shells, etc.), I used one or two letters from the name, favoring using only one. For items that are commonly referenced by their color ('yellow belt', 'green circuits,' etc.), I used the first letter of the color. Any time I deviated from this, there was usually some kind of collision (for example: most people say 'red' or 'green' science; however, 'grey' science collides pretty hard with 'green' when using two letters).
 
+Hint: In game, if you press F4 and check 'allow increased zoom' (third from the last option at the time of writing), you can zoom in very close to read the badges.
+Hint Corollary : Those are debug options. They shouldn't melt your game, but tread lightly when tinkering.
+
 ### The settings
 **Show Badges:**
   - Only GUI: The mod will display badges ONLY in GUI screens (inventory, craftable recipes, etc.).
@@ -20,9 +23,6 @@
 
 **Badge Opacity:**
   - How opaque should the badges be when fully diplayed (1 = fully visible, 0 = fully transparent)?
-
-Hint: In game, if you press F4 and check 'allow increased zoom' (third from the last option at the time of writing), you can zoom in very close to read the badges.
-Hint Corollary : Those are debug options. They shouldn't melt your game, but tread lightly when tinkering.
 
 ## For Modders
 Good news! This is super duper easy to use. To add a badge to any item or recipe, add the following properties to any item or recipe prototype:
