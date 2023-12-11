@@ -216,6 +216,35 @@ badgeList["recipe"] = {
 -- *****************
 Process_badges(badgeList)
 
+
+
+-- debug stuff
+-- ***********
+
+-- Make and badge an item with a sprite-sheet for testing purposes
+--[[
+local item = {
+  type = "item",
+  name = "globulent",
+  stack_size = 1000,
+  icon = "__icon-badges__/graphics/globulent.png",
+  icon_size = 64,
+  pictures = {
+    sheet = {
+      filename = "__icon-badges__/graphics/globulent.png",
+      height = 64,
+      width = 64,
+      variation_count = 4,
+      scale = 0.25
+    }
+  }
+}
+data:extend({item})
+data.raw.item["globulent"].ib_badge = "Hi"
+--]]
+
+
+
 --[[
 -- This stuff is just for the supplementary images on the mod page
 ---@diagnostics disable

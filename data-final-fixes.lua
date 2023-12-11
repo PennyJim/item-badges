@@ -181,9 +181,8 @@ for _, groupName in pairs(item_types) do
   for name, item in pairs(data.raw[groupName]) do
 
     -- Cases:
-    --   * Items can have none, some, or all of: 'icon', 'icons' or 'pictures'. Recipes can have 'icon', 'icons' or none of those
-    --       * Pull icon data from products if we're badging a recipe with no `icon` or `icons` data
-    --           If recipe without an icon, build one from the products. It will be one of three things:
+    --   * Items can have some, or all of: 'icon', 'icons' or 'pictures'. Recipes can have 'icon', 'icons' or none of those
+    --       * Pull icon data from products if we're badging a recipe with no `icon` or `icons` data. It will be one of three things:
     --           * 'result'
     --           * 'results' with 1 entry
     --           * a 'main_product'
@@ -194,10 +193,10 @@ for _, groupName in pairs(item_types) do
     --       * A struct with a sheet = spritesheet property 
     --       * A single layers = array entry 
     --       * An array of things that have layers = array
-    -- If "Only GUI" is picked, then all items and recipes gets an 'icons' with badges and 'pictures' without
-    -- If "Only Belts" is picked, icons aren't touched but every item gets 'pictures' with badges added
+    -- If "Only GUI" is picked, then all items and recipes gets an 'icons' with badges and items without 'pictures' have one made from 'icons' without badges
+    -- If "Only Belts" is picked, icons and recipes aren't touched but every item gets 'pictures' with badges added
 
-    -- Check to see if 'ib_badge is well-formed'
+    -- Check to see if 'ib_badge' is well-formed
     local is_good = false
     if item.ib_badge and type(item.ib_badge) == "string" and (#item.ib_badge == 1 or #item.ib_badge == 2) then
       is_good = true
@@ -206,18 +205,21 @@ for _, groupName in pairs(item_types) do
       end
     end
     
-    -- If 'ib_badge' is well-formed, make a badge from it
+    -- If 'ib_badge' is well-formed, do the crucial stuff
     if is_good then
+      
       -- Icon
       -- ****
 
       -- Make `icon` data from the products of a recipe that has no innate `icon` or `icons` data
       if groupName == "recipe" and ((not item.icon) and (not item.icons)) then
         local product
+        
         -- Either there's one product, or there's 'main product'
         if item.result then product = data.raw.item[item.result] end
         if item.results and #item.results == 1 then product = data.raw.item[item.results[1].name] end
         if item.main_product then product = data.raw.item[item.main_product] end
+        
         -- Fill in anything
         if not item.icon then item.icon = product.icon end
         if not item.icons then item.icons = product.icons end
@@ -235,7 +237,7 @@ for _, groupName in pairs(item_types) do
           }
         }
       end
-      
+
 
 
       -- ib_badge data
@@ -374,7 +376,7 @@ for _, groupName in pairs(item_types) do
           end
 
           -- wait why is this part happening; i just forget and am very tired
-          for i, layer in pairs(item.pictures.layers) do
+          for _, layer in pairs(item.pictures.layers) do
             Build_badge_pictures(layer, item.ib_badge, invert, 1, corner, name)
           end
         end
