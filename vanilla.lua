@@ -1,4 +1,5 @@
 -- Helper Function
+-- ***************
 function Process_badges(currentBadgeList)
   for subListName, subList in pairs(currentBadgeList) do
     for itemName, itemBadge in pairs(subList) do
@@ -11,7 +12,13 @@ function Process_badges(currentBadgeList)
   end
 end
 
+
+
+-- Vanilla badges
+-- **************
 local badgeList = {}
+
+-- Items
 badgeList["item"] = {
   -- Plates
   ["iron-plate"]                      = {badge = "Fe", },
@@ -174,6 +181,7 @@ badgeList["fluid"] = {
   ["sulfuric-acid"]            = {badge = "SA", },
 }
 
+-- Recipes
 badgeList["recipe"] = {
   -- Fill Barrels
   ["fill-crude-oil-barrel"]                 = {badge = "C",  corner = "left-bottom"},
@@ -202,11 +210,15 @@ badgeList["recipe"] = {
   ["nuclear-fuel"]                          = {badge = "NF", },
 }
 
+
+
+-- Actually Do Stuff
+-- *****************
 Process_badges(badgeList)
 
 --[[
-  
 -- This stuff is just for the supplementary images on the mod page
+---@diagnostics disable
 
 -- IGNORE YELLOW SQUIGGLIES; that's just FMTK and VS Code. It works.
 

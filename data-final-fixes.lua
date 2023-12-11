@@ -1,27 +1,29 @@
--- debug
-badge_scale_test = false
+-- Variables
+-- *********
 
 -- Graphical variables
 local default_badge_shift_icon          = {-13, -13}
 local default_badge_shift_icon_adjust   = {5.5, 5.5} -- FIXME: WHAT HAPPENED HERE
+local default_badge_icon_scale          = .3125
 
-local default_badge_icon_scale     = .3125
-local default_badge_picture_scale  = default_badge_icon_scale / 2
+local default_badge_scale_picture       = default_badge_icon_scale / 2
+local default_badge_shift_picture       = {0.25, 0.25}
 
-local default_badge_shift_pictures = {0.25, 0.25}
-
-local default_badge_image_size     = 64
+local badge_image_size                  = 64
+local icon_to_pictures_ratio            = 0.25
 
 -- Structure Variables
-local filepath       = "__icon-badges__/graphics/badges/"
-local char_whitelist = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
+local filepath                          = "__icon-badges__/graphics/badges/"
+local char_whitelist                    = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
 
--- Settings variables and parsing
+-- Settings variables 
 local ib_show_badges       = settings.startup["ib-show-badges"].value
 local ib_show_badges_scale = settings.startup["ib-show-badges-scale"].value
 -- local ib_badge_opacity     = settings.startup["ib-badge-opacity"].value 
 local ib_badge_opacity = 1 -- FIXME: Opacity doesn't work right
 local ib_zoom_visibility   = settings.startup["ib-zoom-visibility"].value
+
+-- Parsing Badge Scale
 local user_badge_scale_table = {
   ["Tiny"]    = .5,
   ["Small"]   = .75,
@@ -31,6 +33,7 @@ local user_badge_scale_table = {
 }
 local user_badge_scale = user_badge_scale_table[ib_show_badges_scale]
 
+-- Parsing Badge Mipmaps
 local mipmaps = "mipAuto"
 local mipmapNums = 0
 if ib_zoom_visibility == "Far" then 
@@ -46,7 +49,7 @@ if ib_zoom_visibility == "Near" then
   mipmapNums = 4
 end
 
--- Item types
+-- Item types (lists entries in data.raw to check for badge properties)
 local item_types = {
   "item", -- Items
   "ammo",
@@ -73,7 +76,11 @@ local item_types = {
   "recipe", -- recipes
 }
 
-local function corner_to_direction(corner)
+-- Helper Functions
+-- ****************
+
+-- Small functions
+function Corner_to_direction(corner)
   local direction = {1, 1}
   if corner == "left-bottom" then
     direction = {1, -1}
@@ -90,7 +97,15 @@ local function corner_to_direction(corner)
   return direction
 end
 
--- Helper Functions
+function Get_case(char)
+  local case = ""
+  if char == string.upper(char) then case = "cap-" end
+  if char == string.lower(char) then case = "low-" end
+  if tonumber(char) then case = "" end
+  return case
+end
+
+-- Build Badge functions
 function Build_single_badge_icon(letter, case, invert, justify, corner)
   -- Credit to Elusive for helping with badges
   local direction = corner_to_direction(corner)
@@ -103,7 +118,7 @@ function Build_single_badge_icon(letter, case, invert, justify, corner)
     -- tint = {r = 1, b = 1, g = 1, a = ib_badge_opacity},
     scale = user_badge_scale * default_badge_icon_scale,
     icon = filepath .. mipmaps .. "/" .. mipmaps .. "-" .. justify .. "-" .. case .. letter .. invert .. ".png", 
-    icon_size = default_badge_image_size,
+    icon_size = badge_image_size,
     icon_mipmaps = mipmapNums,
     shift = shift
   }
@@ -113,27 +128,19 @@ function Build_single_badge_pictures(letter, case, invert, justify, corner)
   -- Credit to Elusive for helping with badges
   local direction = corner_to_direction(corner)
   local shift = {
-    - direction[1] * (default_badge_shift_pictures[1] - (user_badge_scale * default_badge_picture_scale / 2)),
-    - direction[2] * (default_badge_shift_pictures[2] - (user_badge_scale * default_badge_picture_scale / 2)),
+    - direction[1] * (default_badge_shift_picture[1] - (user_badge_scale * default_badge_scale_picture / 2)),
+    - direction[2] * (default_badge_shift_picture[2] - (user_badge_scale * default_badge_scale_picture / 2)),
   }
 
   return {
     -- blend_mode = "multiplicative-with-alpha",
     -- tint = {r = 1, b = 1, g = 1, a = ib_badge_opacity},
-    scale = user_badge_scale * default_badge_picture_scale,
+    scale = user_badge_scale * default_badge_scale_picture,
     filename = filepath .. mipmaps .. "/" .. mipmaps .. "-" .. justify .. "-" .. case .. letter .. invert .. ".png",
-    size = default_badge_image_size,
+    size = badge_image_size,
     mipmap_count = mipmapNums,
     shift = shift
   }
-end
-
-local function get_case(char)
-  local case = ""
-  if char == string.upper(char) then case = "cap-" end
-  if char == string.lower(char) then case = "low-" end
-  if tonumber(char) then case = "" end
-  return case
 end
 
 function Build_badge_pictures(picture, badge, invert, repeat_count, corner, testName)
@@ -164,47 +171,34 @@ function Build_badge_pictures(picture, badge, invert, repeat_count, corner, test
     picture.layers[#picture.layers].repeat_count = repeat_count
     picture.layers[#picture.layers].is_badge_layer = true
   end
-  if badge_scale_test then
-    local test_scale = 1
-    local testList = {
-      "iron-ore",
-      "copper-ore",
-      "uranium-ore",
-      "coal",
-      "stone",
-    }
-    if testName == testList[1] then test_scale = default_badge_picture_scale * user_badge_scale_table["Tiny"] end
-    if testName == testList[2] then test_scale = default_badge_picture_scale * user_badge_scale_table["Small"] end
-    if testName == testList[3] then test_scale = default_badge_picture_scale * user_badge_scale_table["Average"] end
-    if testName == testList[4] then test_scale = default_badge_picture_scale * user_badge_scale_table["Big"] end
-    if testName == testList[5] then test_scale = default_badge_picture_scale * user_badge_scale_table["Why"] end
-    
-    local doTest = false
-    for _, v in pairs(testList) do
-      if testName == v then doTest = true end
-    end
-
-    if doTest then
-      for _, layer in pairs(picture.layers) do
-        if layer.is_badge_layer then layer.scale = test_scale end
-      end
-    end
-  end
 end
 
--- Iterate over all items and staple on badges as appropriate
+-- Generate Badges
+-- ***************
 
+-- Iterate over all items and staple on badges as appropriate
 for _, groupName in pairs(item_types) do
   for name, item in pairs(data.raw[groupName]) do
 
-    -- There are so many cases.
-    -- Items can have none, some, or all of: 'icon', 'icons' or 'pictures'.
-    -- Pictures can be one of four-ish things: a spritesheet, a struct with a sheet = spritesheet property, a single layers = array entry, or an array of things that have layers = array.
-    -- If "Only GUI" is picked, then all items and recipes gets an 'icons' with badges and 'pictures' without.
-    -- If "Only Belts" is picked, icons aren't touched but every item gets 'pictures' with badges added.
+    -- Cases:
+    --   * Items can have none, some, or all of: 'icon', 'icons' or 'pictures'. Recipes can have 'icon', 'icons' or none of those
+    --       * Pull icon data from products if we're badging a recipe with no `icon` or `icons` data
+    --           If recipe without an icon, build one from the products. It will be one of three things:
+    --           * 'result'
+    --           * 'results' with 1 entry
+    --           * a 'main_product'
+    --       * If there's no 'icons', there's a 'icon' data; make an 'icons' entry from the 'icon' data
+    --       * Only make 'pictures' out of 'icons' data if needed for belts
+    --   * Pictures can be one of four structures: 
+    --       * A spritesheet
+    --       * A struct with a sheet = spritesheet property 
+    --       * A single layers = array entry 
+    --       * An array of things that have layers = array
+    -- If "Only GUI" is picked, then all items and recipes gets an 'icons' with badges and 'pictures' without
+    -- If "Only Belts" is picked, icons aren't touched but every item gets 'pictures' with badges added
 
+    -- Check to see if 'ib_badge is well-formed'
     local is_good = false
-
     if item.ib_badge and type(item.ib_badge) == "string" and (#item.ib_badge == 1 or #item.ib_badge == 2) then
       is_good = true
       for i = 1, #item.ib_badge do
@@ -212,9 +206,12 @@ for _, groupName in pairs(item_types) do
       end
     end
     
+    -- If 'ib_badge' is well-formed, make a badge from it
     if is_good then
+      -- Icon
+      -- ****
 
-      -- If recipe without an icon ...
+      -- Make `icon` data from the products of a recipe that has no innate `icon` or `icons` data
       if groupName == "recipe" and ((not item.icon) and (not item.icons)) then
         local product
         -- Either there's one product, or there's 'main product'
@@ -228,9 +225,7 @@ for _, groupName in pairs(item_types) do
         if not item.icon_mipmaps then item.icon_mipmaps = product.icon_mipmaps end
       end
 
-      -- icon
-      -- ****
-
+      -- Build 'icons' data from icon if present
       if item.icon and (not item.icons) then
         item.icons = {
           {
@@ -241,15 +236,24 @@ for _, groupName in pairs(item_types) do
         }
       end
       
+
+
+      -- ib_badge data
+      -- *************
+
+      -- Get the 'invert' and 'corner' data from the entry, if any
       local invert = ""
       if item.ib_badge_inv then invert = "-inv" end
       local case = ""
       local corner = item.ib_corner
       if not corner then corner = "left-top" end
 
+
+
       -- icons
       -- *****
 
+      -- Build badges into 'icons' ib_show_badges says to
       -- One letter badge
       if #item.ib_badge == 1 and ib_show_badges ~= "Only Belts" then
         case = get_case(item.ib_badge)
@@ -269,40 +273,14 @@ for _, groupName in pairs(item_types) do
         item.icons[#item.icons + 1] = Build_single_badge_icon(second, case, invert, "right", corner)
         item.icons[#item.icons].is_badge_layer = true
       end
-      
-      -- debug
-      if badge_scale_test then 
-        local test_scale = 1
-        local testList = {
-          "iron-plate",
-          "copper-plate",
-          "steel-plate",
-          "plastic-bar",
-          "sulfur",
-        }
-        if name == testList[1] then test_scale = default_badge_icon_scale * user_badge_scale_table["Tiny"] end
-        if name == testList[2] then test_scale = default_badge_icon_scale * user_badge_scale_table["Small"] end
-        if name == testList[3] then test_scale = default_badge_icon_scale * user_badge_scale_table["Average"] end
-        if name == testList[4] then test_scale = default_badge_icon_scale * user_badge_scale_table["Big"] end
-        if name == testList[5] then test_scale = default_badge_icon_scale * user_badge_scale_table["Why"] end
-        
-        local doTest = false
-        for _, v in pairs(testList) do
-          if name == v then doTest = true end
-        end
 
-        if doTest then
-          for _, icon in pairs(item.icons) do
-            if icon.is_badge_layer then icon.scale = test_scale end
-          end
-        end
-      end
+
 
       -- pictures
       -- ********
       
+      -- Case 1: No belt items can have badges. They're absent in pictures by default. Make pictures layers out of icons data without badges.
       if ib_show_badges == "Only GUI" then
-        -- No belt items can have badges. They're absent in pictures by default. Make pictures layers out of icons data without badges.
         if not item.pictures then
           item.pictures = {
             layers = {}
@@ -310,7 +288,7 @@ for _, groupName in pairs(item_types) do
           for _, icon in pairs(item.icons) do
             if not icon.is_badge_layer then
               local icon_size = item.icon_size or icon.size
-              icon_scale = .25
+              local icon_scale = .25
               local newLayer = {}
               for k, v in pairs(icon) do
                 newLayer[k] = v
@@ -323,16 +301,23 @@ for _, groupName in pairs(item_types) do
           end
         end
       end
+
+      -- Case 2: All belt items need badges. Icons will already have them. Add badges to things with pictures.
       if ib_show_badges ~= "Only GUI" then
-        -- All belt items need badges. Icons will already have them. Add badges to things with pictures.
+        
+        -- If there's picture data already, it's four of the four cases. We'll handle them one at a time.
         if item.pictures then
-          -- If item.pictures is just one layers thingie
+          
+          -- If item.pictures is a struct with a sheet entry, make it a spritesheet directly
           if item.pictures.sheet then
             item.pictures = table.deepcopy(item.pictures.sheet)
           end
 
+          -- if item.pictures is not an array, it must be a spritesheet directly OR it must have a layers entry.
           local oldSpritesheet
           if not item.pictures[1] then
+            
+            -- Reformatting item.pictures to be an entry in item.pictures.layers.
             if not item.pictures.layers then
               wasSpritesheet = true
               oldSpritesheet = table.deepcopy(item.pictures)
@@ -349,23 +334,34 @@ for _, groupName in pairs(item_types) do
                 }
               }
             end
+            
+            -- Now that item.pictures has (only) a layers property, build badges onto it. 
+            --   * If it was a spritesheet, variation_count and/or repeat_count are needed.
+            --   * If it had a layers property to begin with, the logic will be the same, except 1 will be used instead of variation_count * repeat_count
             local sheet = item.pictures.layers[1]
             Build_badge_pictures(item.pictures, item.ib_badge, invert, (sheet.variation_count or 1) * (sheet.repeat_count or 1), corner, name)
           else
-            -- if item.pictures is an array of {layer-having-thingies}
+            -- if item.pictures is an array of {layer = stuff}, then add badges to each variant.
             for i, picture in pairs(item.pictures) do
               Build_badge_pictures(picture, item.ib_badge, invert, 1, corner, name)
             end
           end
         end
+
+        -- If the item (not recipe!) has no pictures property and we need one, build one from the icons data (either what it originally had or what we built above)
+        -- This will exclude badge data, because the only time we need this is when ib_show_badges = "Only Belts".
         if not item.pictures then
+
+          -- Initialize item.pictures.layers = {}
           item.pictures = {
             layers = {}
           }
+
+          -- Shove data from 'iconss' into the layer property WITHOUT the badge data.
           for _, icon in pairs(item.icons) do
             if not icon.is_badge_layer then
               local icon_size = item.icon_size or icon.size
-              icon_scale = .25
+              local icon_scale = .25
               local newLayer = {}
               for k, v in pairs(icon) do
                 newLayer[k] = v
@@ -376,6 +372,8 @@ for _, groupName in pairs(item_types) do
               table.insert(item.pictures.layers, newLayer)
             end
           end
+
+          -- wait why is this part happening; i just forget and am very tired
           for i, layer in pairs(item.pictures.layers) do
             Build_badge_pictures(layer, item.ib_badge, invert, 1, corner, name)
           end
