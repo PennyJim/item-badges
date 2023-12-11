@@ -108,7 +108,7 @@ end
 -- Build Badge functions
 function Build_single_badge_icon(letter, case, invert, justify, corner)
   -- Credit to Elusive for helping with badges
-  local direction = corner_to_direction(corner)
+  local direction = Corner_to_direction(corner)
   local shift = {
       direction[1] * (default_badge_shift_icon[1] + (user_badge_scale * default_badge_shift_icon_adjust[1] / 2)),
       direction[2] * (default_badge_shift_icon[2] + (user_badge_scale * default_badge_shift_icon_adjust[2] / 2))
@@ -126,7 +126,7 @@ end
 
 function Build_single_badge_pictures(letter, case, invert, justify, corner)
   -- Credit to Elusive for helping with badges
-  local direction = corner_to_direction(corner)
+  local direction = Corner_to_direction(corner)
   local shift = {
     - direction[1] * (default_badge_shift_picture[1] - (user_badge_scale * default_badge_scale_picture / 2)),
     - direction[2] * (default_badge_shift_picture[2] - (user_badge_scale * default_badge_scale_picture / 2)),
@@ -150,7 +150,7 @@ function Build_badge_pictures(picture, badge, invert, repeat_count, corner, test
   end
 
   if #badge == 1 then
-    case = get_case(badge)
+    case = Get_case(badge)
     picture.layers[#picture.layers + 1] = Build_single_badge_pictures(badge, case, invert, "center", corner)
     picture.layers[#picture.layers].repeat_count = repeat_count
     picture.layers[#picture.layers].is_badge_layer = true
@@ -161,12 +161,12 @@ function Build_badge_pictures(picture, badge, invert, repeat_count, corner, test
     local first = badge:sub(1,1)
     local second = badge:sub(2,2)
 
-    case = get_case(first)
+    case = Get_case(first)
     picture.layers[#picture.layers + 1] = Build_single_badge_pictures(first, case, invert, "left", corner)
     picture.layers[#picture.layers].repeat_count = repeat_count
     picture.layers[#picture.layers].is_badge_layer = true
 
-    case = get_case(second)
+    case = Get_case(second)
     picture.layers[#picture.layers + 1] = Build_single_badge_pictures(second, case, invert, "right", corner)
     picture.layers[#picture.layers].repeat_count = repeat_count
     picture.layers[#picture.layers].is_badge_layer = true
@@ -256,7 +256,7 @@ for _, groupName in pairs(item_types) do
       -- Build badges into 'icons' ib_show_badges says to
       -- One letter badge
       if #item.ib_badge == 1 and ib_show_badges ~= "Only Belts" then
-        case = get_case(item.ib_badge)
+        case = Get_case(item.ib_badge)
         item.icons[#item.icons + 1] = Build_single_badge_icon(item.ib_badge, case, invert, "center", corner)
         item.icons[#item.icons].is_badge_layer = true
       end
@@ -266,10 +266,10 @@ for _, groupName in pairs(item_types) do
         local first = item.ib_badge:sub(1,1)
         local second = item.ib_badge:sub(2,2)
 
-        case = get_case(first)
+        case = Get_case(first)
         item.icons[#item.icons + 1] = Build_single_badge_icon(first, case, invert, "left", corner)
         item.icons[#item.icons].is_badge_layer = true
-        case = get_case(second)
+        case = Get_case(second)
         item.icons[#item.icons + 1] = Build_single_badge_icon(second, case, invert, "right", corner)
         item.icons[#item.icons].is_badge_layer = true
       end
@@ -288,7 +288,7 @@ for _, groupName in pairs(item_types) do
           for _, icon in pairs(item.icons) do
             if not icon.is_badge_layer then
               local icon_size = item.icon_size or icon.size
-              local icon_scale = .25
+              local icon_scale = icon_to_pictures_ratio
               local newLayer = {}
               for k, v in pairs(icon) do
                 newLayer[k] = v
@@ -361,7 +361,7 @@ for _, groupName in pairs(item_types) do
           for _, icon in pairs(item.icons) do
             if not icon.is_badge_layer then
               local icon_size = item.icon_size or icon.size
-              local icon_scale = .25
+              local icon_scale = icon_to_pictures_ratio
               local newLayer = {}
               for k, v in pairs(icon) do
                 newLayer[k] = v
