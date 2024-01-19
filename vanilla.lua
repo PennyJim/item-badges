@@ -91,9 +91,9 @@ badgeList["item"] = {
   ["explosives"]                      = {badge = "E",  },
   
   -- Test
-  ["plastic-bar"] = {badge = "Pl"},
-  ["steel-plate"] = {badge = "SP"},
-  ["sulfur"]      = {badge = "Su"},
+  -- ["plastic-bar"] = {badge = "Pl"},
+  -- ["steel-plate"] = {badge = "SP"},
+  -- ["sulfur"]      = {badge = "Su"},
 }
 
 badgeList["tool"] = {
@@ -242,8 +242,6 @@ local item = {
 data:extend({item})
 data.raw.item["globulent"].ib_badge = "Hi"
 --]]
-
-
 
 --[[
 -- This stuff is just for the supplementary images on the mod page

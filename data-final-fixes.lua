@@ -174,8 +174,8 @@ end
 
 
 
--- Generate Badges
--- ***************
+-- Generate 1 or 2 letter icon Badges
+-- **********************************
 
 -- Iterate over all items and staple on badges as appropriate
 for _, groupName in pairs(item_types) do
@@ -385,3 +385,4 @@ for _, groupName in pairs(item_types) do
     end
   end
 end
+
