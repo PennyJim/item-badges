@@ -91,9 +91,9 @@ badgeList["item"] = {
   ["explosives"]                      = {badge = "E",  },
   
   -- Test
-  ["plastic-bar"] = {badge = "Pl"},
-  ["steel-plate"] = {badge = "SP"},
-  ["sulfur"]      = {badge = "WWW", corner = "left-bottom"},
+  -- ["plastic-bar"] = {badge = "Pl"},
+  -- ["steel-plate"] = {badge = "SP"},
+  -- ["sulfur"]      = {badge = "Su"},
 }
 
 badgeList["tool"] = {

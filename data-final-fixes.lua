@@ -1,6 +1,10 @@
 -- Variables
 -- *********
 
+-- Debug and Logging
+local debug                             = false
+local log_errors                        = false
+
 -- Graphical variables
 local default_badge_shift_icon          = {-13, -13}
 local default_badge_shift_icon_adjust   = {5.5, 5.5} -- FIXME: WHAT HAPPENED HERE
@@ -23,8 +27,6 @@ local char_whitelist                    = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJK
 
 -- Character width nonsense 
 local char_widths = {
-  -- ["a"] = 13,
-  
   -- 14
   ["il I"] = 14,
 
@@ -123,8 +125,6 @@ local function parse_char_widths(character)
   end
   return current_width
 end
-
-
 
 -- Settings variables 
 local ib_show_badges                    = settings.startup["ib-show-badges"].value
@@ -225,11 +225,15 @@ end
 -- Build Badge functions
 function Build_single_badge_icon(letter, case, invert, justify, corner, three_position, middle_char)
   -- Credit to Elusive for helping with badges
+  
+  -- One or Two character Shift
   local direction = Corner_to_direction(corner)
   local shift = {
     direction[1] * (default_badge_shift_icon[1] + (user_badge_scale * default_badge_shift_icon_adjust[1] / 2)),
     direction[2] * (default_badge_shift_icon[2] + (user_badge_scale * default_badge_shift_icon_adjust[2] / 2))
   }
+
+  -- Three character Shift (can only be centered (going left-to-right) but can be on top or bottom)
   local three_shift = 0
   if three_position then
     three_shift = three_char_icon_shift[three_position]
@@ -238,6 +242,7 @@ function Build_single_badge_icon(letter, case, invert, justify, corner, three_po
       direction[2] * (default_badge_shift_icon[2] + (user_badge_scale * default_badge_shift_icon_adjust[2] / 2))
     }
   end
+
   return {
     tint = {r = ib_badge_opacity, b = ib_badge_opacity, g = ib_badge_opacity, a = ib_badge_opacity},
     scale = user_badge_scale * default_badge_icon_scale,
@@ -248,13 +253,25 @@ function Build_single_badge_icon(letter, case, invert, justify, corner, three_po
   }
 end
 
-function Build_single_badge_pictures(letter, case, invert, justify, corner)
+function Build_single_badge_pictures(letter, case, invert, justify, corner, three_position, middle_char)
   -- Credit to Elusive for helping with badges
+  
+  -- One or Two character Shift
   local direction = Corner_to_direction(corner)
   local shift = {
     - direction[1] * (default_badge_shift_picture[1] - (user_badge_scale * default_badge_scale_picture / 2)),
     - direction[2] * (default_badge_shift_picture[2] - (user_badge_scale * default_badge_scale_picture / 2)),
   }
+  
+  -- Three character Shift (can only be centered (going left-to-right) but can be on top or bottom)
+  local three_shift = 0
+  if three_position then
+    three_shift = three_char_icon_shift[three_position]
+    shift = {
+      direction[1] * ((user_badge_scale * three_shift * default_badge_scale_picture * (parse_char_widths(middle_char))) / 8 / 8),
+      - direction[2] * (default_badge_shift_picture[2] - (user_badge_scale * default_badge_scale_picture / 2)),
+    }
+  end
 
   return {
     tint = {r = ib_badge_opacity, b = ib_badge_opacity, g = ib_badge_opacity, a = ib_badge_opacity},
@@ -266,7 +283,7 @@ function Build_single_badge_pictures(letter, case, invert, justify, corner)
   }
 end
 
-function Build_badge_pictures(picture, badge, invert, repeat_count, corner, testName)
+function Build_badge_pictures(picture, badge, invert, repeat_count, corner)
   if not picture.layers then
     local newLayer = table.deepcopy(picture)
     picture.layers = {newLayer}
@@ -292,6 +309,27 @@ function Build_badge_pictures(picture, badge, invert, repeat_count, corner, test
 
     case = Get_case(second)
     picture.layers[#picture.layers + 1] = Build_single_badge_pictures(second, case, invert, "right", corner)
+    picture.layers[#picture.layers].repeat_count = repeat_count
+    picture.layers[#picture.layers].is_badge_layer = true
+  end
+
+  if #badge == 3 then
+    local first = badge:sub(1,1)
+    local second = badge:sub(2,2)
+    local third = badge:sub(3,3)
+
+    case = Get_case(first)
+    picture.layers[#picture.layers + 1] = Build_single_badge_pictures(first, case, invert, "left", corner, 1, second)
+    picture.layers[#picture.layers].repeat_count = repeat_count
+    picture.layers[#picture.layers].is_badge_layer = true
+
+    case = Get_case(second)
+    picture.layers[#picture.layers + 1] = Build_single_badge_pictures(second, case, invert, "center", corner, 2, second)
+    picture.layers[#picture.layers].repeat_count = repeat_count
+    picture.layers[#picture.layers].is_badge_layer = true
+
+    case = Get_case(third)
+    picture.layers[#picture.layers + 1] = Build_single_badge_pictures(third, case, invert, "right", corner, 3, second)
     picture.layers[#picture.layers].repeat_count = repeat_count
     picture.layers[#picture.layers].is_badge_layer = true
   end
@@ -363,6 +401,12 @@ for _, groupName in pairs(item_types) do
           }
         }
       end
+
+      -- icons Mipmap Error Logging
+      -- **************************
+      -- if ((item.icons[1].icon_mipmaps and item.icons[1].icon_mipmaps ~= mipmapNums) or (not item.icons[1].icon_mipmaps and mipmapNums ~= 0))  and log_errors then
+      --   log("(Icon Badges) Mipmap Disagreement! Recipe: " .. name .. "    icon_mipmaps: " .. item.icon_mipmaps .. "    Current Badge Mipmaps: " .. mipmapNums)
+      -- end
 
 
 
@@ -484,11 +528,18 @@ for _, groupName in pairs(item_types) do
             --   * If it was a spritesheet, variation_count and/or repeat_count are needed.
             --   * If it had a layers property to begin with, the logic will be the same, except 1 will be used instead of variation_count * repeat_count
             local sheet = item.pictures.layers[1]
-            Build_badge_pictures(item.pictures, item.ib_badge, invert, (sheet.variation_count or 1) * (sheet.repeat_count or 1), corner, name)
+            
+            -- pictures Mipmap Error Logging
+            -- *****************************
+            -- if ((item.pictures.layers[1].mipmap_count and item.pictures.layers[1].mipmap_count ~= mipmapNums) or (not item.pictures.layers[1].mipmap_count and mipmapNums ~= 0))  and log_errors then
+            --   log("(Icon Badges) Mipmap Disagreement! Item name: " .. name .. "    mipmap_count: " .. item.pictures.layers[1].mipmap_count .. "    Current Badge Mipmaps: " .. mipmapNums)
+            -- end
+
+            Build_badge_pictures(item.pictures, item.ib_badge, invert, (sheet.variation_count or 1) * (sheet.repeat_count or 1), corner)
           else
             -- if item.pictures is an array of {layer = stuff}, then add badges to each variant.
             for i, picture in pairs(item.pictures) do
-              Build_badge_pictures(picture, item.ib_badge, invert, 1, corner, name)
+              Build_badge_pictures(picture, item.ib_badge, invert, 1, corner)
             end
           end
         end
@@ -520,7 +571,7 @@ for _, groupName in pairs(item_types) do
 
           -- wait why is this part happening; i just forget and am very tired
           for _, layer in pairs(item.pictures.layers) do
-            Build_badge_pictures(layer, item.ib_badge, invert, 1, corner, name)
+            Build_badge_pictures(layer, item.ib_badge, invert, 1, corner)
           end
 
         end

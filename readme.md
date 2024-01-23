@@ -30,19 +30,22 @@ Hint Corollary : Those are debug options. They shouldn't melt your game, but tre
 Good news! This is super duper easy to use. To add a badge to any *item*, *fluid* or *recipe*, add the following properties to its prototype:
 
 1. **ib_badge** :
-   Must be a 1 or 2 character string, consisting of lower- or upper-case letters or numbers (nothing else!). Valid examples: "AB", "aB", "Ab", "A", "b", "1A", "1".
+   Must be a 1, 2 or 3 character string, consisting of lower- or upper-case letters or numbers (nothing else!). Valid examples: "AB", "aB", "Ab", "A", "b", "1A", "1", "GUI", "wHy".
+   Note: 3-letter badges are always centered (going left-to-right), though they can be put on the top or bottom of the icon. They're just too wide. Use "ib_corner" like normal; it'll work out the rest.
 
 2. **ib_invert** :
    *(optional)* Set to anything that isn't 'nil' to invert the text. By default, badges are 'white text with black borders'. To help with collisions, I've also supplied 'black text with white borders.' It's both-or-neither; it's not possible to have one character inverted and another not.
 
 3. **ib_corner** :
-   *(optional)* This moves the badge in one of the four corners instead of the upper left. Set to one of the following EXACTLY as shown:
+   *(optional)* This moves the badge in one of the four corners instead of the upper left. Set to one of the following EXACTLY as shown (even for 3-letter badges!!):
   - "left-top"     (default)
   - "left-bottom"
   - "right-top"
   - "right-bottom"
 
 I add badges in data-final-fixes.lua. As long as you add those properties to your items, fluids or recipes before then -- either by using data.lua, data-updates.lua, or making my mod an optional dependency of yours, it should work. You shouldn't have to fuss with anything else.
+
+Look in the file vanilla.lua to see an example of how to modify a batch of icons.
 
 If you badge-up a recipe that draw their icon(s) data from its product, and that product has already been badged, you'll get a double-badge. For max compatibility, just badge-up the product item.
 
