@@ -12,15 +12,117 @@ local default_badge_shift_picture       = {0.25, 0.25}
 local badge_image_size                  = 64
 local icon_to_pictures_ratio            = 0.25
 
+-- 3-char badges
+local three_char_icon_shift             = {-13, 0, 13}
+
 -- Structure Variables
 local filepath                          = "__icon-badges__/graphics/badges/"
 local char_whitelist                    = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
 
+-- Character width nonsense 
+local char_widths = {
+  -- 14
+  ["il I"] = 14,
+
+  -- 15
+  -- [""] = 15,
+
+  -- 16
+  ["j J"] = 16,
+
+  -- 17
+  -- [""] = 17,
+
+  -- 18
+  -- [""] = 18,
+
+  -- 19
+  -- [""] = 19,
+
+  -- 20
+  ["1frt"] = 20,
+
+  -- 21
+  -- [""] = 21,
+
+  -- 22
+  ["cz"] = 22,
+
+  -- 23
+  -- [""] = 23,
+
+  -- 24
+  ["hknsu L 237"] = 24,
+
+  -- 25
+  -- [""] = 25,
+
+  -- 26
+  ["abdegopqvxy CEFSZ 459"] = 26,
+
+  -- 27
+  -- [""] = 27,
+
+  -- 28
+  ["ABDGHKNPRTUVXY 680"] = 28,
+
+  -- 29
+  -- [""] = 29,
+
+  -- 30
+  ["OQ"] = 30,
+
+  -- 31
+  -- [""] = 31,
+
+  -- 32
+  -- [""] = 32,
+
+  -- 33
+  -- [""] = 33,
+
+  -- 34
+  -- [""] = 34,
+
+  -- 35
+  -- [""] = 35,
+
+  -- 36
+  ["mw M"] = 36,
+
+  -- 37
+  -- [""] = 37,
+
+  -- 38
+  -- [""] = 38,
+
+  -- 39
+  -- [""] = 39,
+
+  -- 40
+  ["W"] = 40,
+
+  -- 41
+  -- [""] = 41,
+
+}
+-- Parsing character widths
+local function parse_char_widths(character)
+  local current_width = 0
+  for group, width in pairs(char_widths) do
+    local i, j = string.find(group, character)
+    if i then
+      current_width = width
+    end
+  end
+  return current_width
+end
+
 -- Settings variables 
-local ib_show_badges       = settings.startup["ib-show-badges"].value
-local ib_show_badges_scale = settings.startup["ib-show-badges-scale"].value
-local ib_badge_opacity     = settings.startup["ib-badge-opacity"].value
-local ib_zoom_visibility   = settings.startup["ib-zoom-visibility"].value
+local ib_show_badges                    = settings.startup["ib-show-badges"].value
+local ib_show_badges_scale              = settings.startup["ib-show-badges-scale"].value
+local ib_badge_opacity                  = settings.startup["ib-badge-opacity"].value
+local ib_zoom_visibility                = settings.startup["ib-zoom-visibility"].value
 
 -- Parsing Badge Scale
 local user_badge_scale_table = {
@@ -58,8 +160,11 @@ local item_types = {
   "tool",
   "armor",
   "spidertron-remote",
+
   "fluid", -- fluids
+
   "item-with-entity-data", -- entities
+
   "item-with-tags", -- tools and planners
   "repair-tool",
   "mining-tool",
@@ -68,10 +173,13 @@ local item_types = {
   "upgrade-item",
   "deconstruction-item",
   "copy-paste-tool",
+
   "blueprint", -- blueprints
   "blueprint-book" ,
+
   "item-with-inventory", -- abstracts
   "item-with-label",
+
   "recipe", -- recipes
 }
 
@@ -107,13 +215,21 @@ function Get_case(char)
 end
 
 -- Build Badge functions
-function Build_single_badge_icon(letter, case, invert, justify, corner)
+function Build_single_badge_icon(letter, case, invert, justify, corner, three_position)
   -- Credit to Elusive for helping with badges
   local direction = Corner_to_direction(corner)
   local shift = {
-      direction[1] * (default_badge_shift_icon[1] + (user_badge_scale * default_badge_shift_icon_adjust[1] / 2)),
+    direction[1] * (default_badge_shift_icon[1] + (user_badge_scale * default_badge_shift_icon_adjust[1] / 2)),
+    direction[2] * (default_badge_shift_icon[2] + (user_badge_scale * default_badge_shift_icon_adjust[2] / 2))
+  }
+  local three_shift = 0
+  if three_position then
+    three_shift = three_char_icon_shift[three_position]
+    shift = {
+      direction[1] * (                              (user_badge_scale * three_shift)),
       direction[2] * (default_badge_shift_icon[2] + (user_badge_scale * default_badge_shift_icon_adjust[2] / 2))
     }
+  end
   return {
     tint = {r = ib_badge_opacity, b = ib_badge_opacity, g = ib_badge_opacity, a = ib_badge_opacity},
     scale = user_badge_scale * default_badge_icon_scale,
@@ -148,6 +264,7 @@ function Build_badge_pictures(picture, badge, invert, repeat_count, corner, test
     picture.layers = {newLayer}
   end
 
+  -- One letter badge
   if #badge == 1 then
     case = Get_case(badge)
     picture.layers[#picture.layers + 1] = Build_single_badge_pictures(badge, case, invert, "center", corner)
@@ -174,8 +291,8 @@ end
 
 
 
--- Generate 1 or 2 letter icon Badges
--- **********************************
+-- Generate letter icon Badges
+-- ***************************
 
 -- Iterate over all items and staple on badges as appropriate
 for _, groupName in pairs(item_types) do
@@ -199,7 +316,7 @@ for _, groupName in pairs(item_types) do
 
     -- Check to see if 'ib_badge' is well-formed
     local is_good = false
-    if item.ib_badge and type(item.ib_badge) == "string" and (#item.ib_badge == 1 or #item.ib_badge == 2) then
+    if item.ib_badge and type(item.ib_badge) == "string" and (#item.ib_badge >= 1 and #item.ib_badge <= 3) then
       is_good = true
       for i = 1, #item.ib_badge do
         if not string.find(char_whitelist, item.ib_badge:sub(i,i)) then is_good = false end
@@ -277,7 +394,24 @@ for _, groupName in pairs(item_types) do
         item.icons[#item.icons].is_badge_layer = true
       end
 
+      -- Three letter badge
+      if #item.ib_badge == 3 and ib_show_badges ~= "Only Belts" then
 
+        local first = item.ib_badge:sub(1,1)
+        local second = item.ib_badge:sub(2,2)
+        local third = item.ib_badge:sub(3,3)
+
+        case = Get_case(first)
+        item.icons[#item.icons + 1] = Build_single_badge_icon(first, case, invert, "right", corner, 1)
+        item.icons[#item.icons].is_badge_layer = true
+        case = Get_case(second)
+        item.icons[#item.icons + 1] = Build_single_badge_icon(second, case, invert, "center", corner, 2)
+        item.icons[#item.icons].is_badge_layer = true
+        case = Get_case(third)
+        item.icons[#item.icons + 1] = Build_single_badge_icon(third, case, invert, "left", corner, 3)
+        item.icons[#item.icons].is_badge_layer = true
+
+      end
 
       -- pictures
       -- ********
@@ -380,9 +514,11 @@ for _, groupName in pairs(item_types) do
           for _, layer in pairs(item.pictures.layers) do
             Build_badge_pictures(layer, item.ib_badge, invert, 1, corner, name)
           end
+
         end
       end
     end
   end
 end
 
+local a = 1
