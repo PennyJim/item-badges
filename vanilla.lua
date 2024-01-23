@@ -93,7 +93,7 @@ badgeList["item"] = {
   -- Test
   ["plastic-bar"] = {badge = "Pl"},
   ["steel-plate"] = {badge = "SP"},
-  ["sulfur"]      = {badge = "SWL"},
+  ["sulfur"]      = {badge = "WWW", corner = "left-bottom"},
 }
 
 badgeList["tool"] = {

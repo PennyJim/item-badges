@@ -13,7 +13,9 @@ local badge_image_size                  = 64
 local icon_to_pictures_ratio            = 0.25
 
 -- 3-char badges
-local three_char_icon_shift             = {-13, 0, 13}
+local three_char_icon_shift             = {-1, 0, 1}
+local char_width_icon_scale             = 0.7
+local char_width_picture_scale          = char_width_icon_scale / 2
 
 -- Structure Variables
 local filepath                          = "__icon-badges__/graphics/badges/"
@@ -21,6 +23,8 @@ local char_whitelist                    = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJK
 
 -- Character width nonsense 
 local char_widths = {
+  -- ["a"] = 13,
+  
   -- 14
   ["il I"] = 14,
 
@@ -58,6 +62,7 @@ local char_widths = {
   -- [""] = 25,
 
   -- 26
+  -- ["bdegopqvxy CEFSZ 459"] = 26,
   ["abdegopqvxy CEFSZ 459"] = 26,
 
   -- 27
@@ -106,6 +111,7 @@ local char_widths = {
   -- [""] = 41,
 
 }
+
 -- Parsing character widths
 local function parse_char_widths(character)
   local current_width = 0
@@ -117,6 +123,8 @@ local function parse_char_widths(character)
   end
   return current_width
 end
+
+
 
 -- Settings variables 
 local ib_show_badges                    = settings.startup["ib-show-badges"].value
@@ -215,7 +223,7 @@ function Get_case(char)
 end
 
 -- Build Badge functions
-function Build_single_badge_icon(letter, case, invert, justify, corner, three_position)
+function Build_single_badge_icon(letter, case, invert, justify, corner, three_position, middle_char)
   -- Credit to Elusive for helping with badges
   local direction = Corner_to_direction(corner)
   local shift = {
@@ -226,7 +234,7 @@ function Build_single_badge_icon(letter, case, invert, justify, corner, three_po
   if three_position then
     three_shift = three_char_icon_shift[three_position]
     shift = {
-      direction[1] * (                              (user_badge_scale * three_shift)),
+      direction[1] * ((user_badge_scale * three_shift * (parse_char_widths(middle_char))) / 8 ),
       direction[2] * (default_badge_shift_icon[2] + (user_badge_scale * default_badge_shift_icon_adjust[2] / 2))
     }
   end
@@ -402,13 +410,13 @@ for _, groupName in pairs(item_types) do
         local third = item.ib_badge:sub(3,3)
 
         case = Get_case(first)
-        item.icons[#item.icons + 1] = Build_single_badge_icon(first, case, invert, "right", corner, 1)
+        item.icons[#item.icons + 1] = Build_single_badge_icon(first, case, invert, "left", corner, 1, second)
         item.icons[#item.icons].is_badge_layer = true
         case = Get_case(second)
-        item.icons[#item.icons + 1] = Build_single_badge_icon(second, case, invert, "center", corner, 2)
+        item.icons[#item.icons + 1] = Build_single_badge_icon(second, case, invert, "center", corner, 2, second)
         item.icons[#item.icons].is_badge_layer = true
         case = Get_case(third)
-        item.icons[#item.icons + 1] = Build_single_badge_icon(third, case, invert, "left", corner, 3)
+        item.icons[#item.icons + 1] = Build_single_badge_icon(third, case, invert, "right", corner, 3, second)
         item.icons[#item.icons].is_badge_layer = true
 
       end
