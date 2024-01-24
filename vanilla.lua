@@ -16,6 +16,9 @@ function Process_badges(currentBadgeList)
         data.raw[subListName][itemName].ib_img_scale  = itemBadge.img_scale
         data.raw[subListName][itemName].ib_img_mips   = itemBadge.img_mips
         data.raw[subListName][itemName].ib_img_space  = itemBadge.img_space
+
+        -- Interplay
+        data.raw[subListName][itemName].ib_let_on_top = itemBadge.let_on_top
       end
     end
   end
@@ -102,7 +105,7 @@ badgeList["item"] = {
   -- Test
   -- ["plastic-bar"] = {badge = "Pl"},
   -- ["steel-plate"] = {badge = "SP"},
-  ["sulfur"]      = {let_badge = "Sus", let_corner = "left-bottom", img_paths = {"__galdocs-manufacturing__/graphics/badges/heavy-load-bearing.png", "__galdocs-manufacturing__/graphics/badges/high-tensile.png"}, img_size = 64, img_scale = 0.2, img_space = 10, img_corner = "left-top"},
+  ["sulfur"]      = {let_on_top = false, let_badge = "Sus", let_corner = "left-top", img_paths = {"__galdocs-manufacturing__/graphics/badges/heavy-load-bearing.png", "__galdocs-manufacturing__/graphics/badges/high-tensile.png"}, img_size = 64, img_scale = 0.2, img_space = 10, img_corner = "left-top"},
 }
 
 badgeList["tool"] = {

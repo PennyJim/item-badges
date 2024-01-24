@@ -67,6 +67,10 @@ To add a image badge, add the following properties to its prototype:
 6. **ib_img_space** :
    *(optional)* Controls spacing between image badges, one value for all. This is in pixels.
 
+### Interplay
+1. **ib_let_on_top** :
+   A boolean value that determines if the letter badge should be on top of the image badge. Default is true.
+
 ## Notes
 I add badges in data-final-fixes.lua. As long as you add those properties to your items, fluids or recipes before then -- either by using data.lua, data-updates.lua, or making my mod an optional dependency of yours, it should work. You shouldn't have to fuss with anything else.
 

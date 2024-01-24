@@ -254,6 +254,46 @@ function Build_single_letter_badge_icon(letter, case, invert, justify, corner, t
   }
 end
 
+function Build_letter_badge_icon(icons, let_badge, invert_str, let_corner)
+  -- One letter badge
+  if #let_badge == 1 and ib_show_badges ~= "Only Belts" then
+    case = Get_case(let_badge)
+    icons[#icons + 1] = Build_single_letter_badge_icon(let_badge, case, invert_str, "center", let_corner)
+    icons[#icons].is_badge_layer = true
+  end
+
+  -- Two letter badge
+  if #let_badge == 2 and ib_show_badges ~= "Only Belts" then
+    local first = let_badge:sub(1,1)
+    local second = let_badge:sub(2,2)
+
+    case = Get_case(first)
+    icons[#icons + 1] = Build_single_letter_badge_icon(first, case, invert_str, "left", let_corner)
+    icons[#icons].is_badge_layer = true
+    case = Get_case(second)
+    icons[#icons + 1] = Build_single_letter_badge_icon(second, case, invert_str, "right", let_corner)
+    icons[#icons].is_badge_layer = true
+  end
+
+  -- Three letter badge
+  if #let_badge == 3 and ib_show_badges ~= "Only Belts" then
+
+    local first = let_badge:sub(1,1)
+    local second = let_badge:sub(2,2)
+    local third = let_badge:sub(3,3)
+
+    case = Get_case(first)
+    icons[#icons + 1] = Build_single_letter_badge_icon(first, case, invert_str, "left", let_corner, 1, second)
+    icons[#icons].is_badge_layer = true
+    case = Get_case(second)
+    icons[#icons + 1] = Build_single_letter_badge_icon(second, case, invert_str, "center", let_corner, 2, second)
+    icons[#icons].is_badge_layer = true
+    case = Get_case(third)
+    icons[#icons + 1] = Build_single_letter_badge_icon(third, case, invert_str, "right", let_corner, 3, second)
+    icons[#icons].is_badge_layer = true
+  end
+end
+
 function Build_single_img_badge_icon(path, size, scale, mips, corner, spacing)
   -- Credit to Elusive for helping with badges
 
@@ -272,6 +312,15 @@ function Build_single_img_badge_icon(path, size, scale, mips, corner, spacing)
     icon_mipmaps = mips,
     shift = shift
   }
+end
+
+function Build_img_badge_icon(icons, paths, size, scale, mips, corner, space)
+  local spacing = 0
+  for i, path in pairs(paths) do
+    if space then spacing = spacing + ((i - 1) * space) end
+    icons[#icons + 1] = Build_single_img_badge_icon(path, size, scale, mips, corner, spacing)
+    icons[#icons].is_badge_layer = true
+  end
 end
 
 -- Pictures
@@ -479,69 +528,42 @@ for _, groupName in pairs(item_types) do
       -- ib_let_badge data
       -- *****************
 
-      local invert = ""
-      if item.ib_let_invert then invert = "-inv" end
+      local invert_str = ""
+      if item.ib_let_invert then invert_str = "-inv" end
+      local let_corner    = item.ib_let_corner or "left-top"
+      local img_corner    = item.ib_img_corner or "left-top"
+      local img_scale     = item.ib_img_scale  or default_badge_scale_picture
+      local img_mips      = item.ib_img_mips   or 0
+      local ib_let_on_top = true
+      if item.ib_let_on_top ~= nil then
+        ib_let_on_top = item.ib_let_on_top
+      end
+      
       local case = ""
-      local let_corner = item.ib_let_corner or "left-top"
-      local img_corner = item.ib_img_corner or "left-top"
-      local img_scale  = item.ib_img_scale  or default_badge_scale_picture
-      local img_mips   = item.ib_img_mips or 0
 
 
 
       -- icons
       -- *****
-
-      -- Build letter badges into 'icons' ib_show_badges says to
-      if is_good_letters then 
-        -- One letter badge
-        if #item.ib_let_badge == 1 and ib_show_badges ~= "Only Belts" then
-          case = Get_case(item.ib_let_badge)
-          item.icons[#item.icons + 1] = Build_single_letter_badge_icon(item.ib_let_badge, case, invert, "center", let_corner)
-          item.icons[#item.icons].is_badge_layer = true
+      if ib_show_badges ~= "Only Belts" then
+        -- Build letter badges into 'icons' ib_show_badges says to
+        if is_good_letters and not is_good_paths then
+          Build_letter_badge_icon(item.icons, item.ib_let_badge, invert_str, let_corner)
         end
 
-        -- Two letter badge
-        if #item.ib_let_badge == 2 and ib_show_badges ~= "Only Belts" then
-          local first = item.ib_let_badge:sub(1,1)
-          local second = item.ib_let_badge:sub(2,2)
-
-          case = Get_case(first)
-          item.icons[#item.icons + 1] = Build_single_letter_badge_icon(first, case, invert, "left", let_corner)
-          item.icons[#item.icons].is_badge_layer = true
-          case = Get_case(second)
-          item.icons[#item.icons + 1] = Build_single_letter_badge_icon(second, case, invert, "right", let_corner)
-          item.icons[#item.icons].is_badge_layer = true
+        -- Build image badges into 'icons' ib_show_badges says to
+        if is_good_paths and not is_good_letters then
+          Build_img_badge_icon(item.icons, item.ib_img_paths, item.ib_img_size, img_scale, img_mips, img_corner, item.ib_img_space)
         end
-
-        -- Three letter badge
-        if #item.ib_let_badge == 3 and ib_show_badges ~= "Only Belts" then
-
-          local first = item.ib_let_badge:sub(1,1)
-          local second = item.ib_let_badge:sub(2,2)
-          local third = item.ib_let_badge:sub(3,3)
-
-          case = Get_case(first)
-          item.icons[#item.icons + 1] = Build_single_letter_badge_icon(first, case, invert, "left", let_corner, 1, second)
-          item.icons[#item.icons].is_badge_layer = true
-          case = Get_case(second)
-          item.icons[#item.icons + 1] = Build_single_letter_badge_icon(second, case, invert, "center", let_corner, 2, second)
-          item.icons[#item.icons].is_badge_layer = true
-          case = Get_case(third)
-          item.icons[#item.icons + 1] = Build_single_letter_badge_icon(third, case, invert, "right", let_corner, 3, second)
-          item.icons[#item.icons].is_badge_layer = true
-
-        end
-      end
-
-      -- Build image badges into 'icons' ib_show_badges says to
-      if is_good_paths then
-        if ib_show_badges ~= "Only Belts" then
-          local spacing = 0
-          for i, path in pairs(item.ib_img_paths) do
-            if item.ib_img_space then spacing = spacing + ((i - 1) * item.ib_img_space) end
-            item.icons[#item.icons + 1] = Build_single_img_badge_icon(path, item.ib_img_size, img_scale, img_mips, img_corner, spacing)
-            item.icons[#item.icons].is_badge_layer = true
+        
+        -- Build Letter and Image Badges in the correct order into 'icons' ib_show_badges says to
+        if is_good_paths and is_good_letters then
+          if ib_let_on_top then
+            Build_img_badge_icon(item.icons, item.ib_img_paths, item.ib_img_size, img_scale, img_mips, img_corner, item.ib_img_space)
+            Build_letter_badge_icon(item.icons, item.ib_let_badge, invert_str, let_corner)
+          else
+            Build_letter_badge_icon(item.icons, item.ib_let_badge, invert_str, let_corner)
+            Build_img_badge_icon(item.icons, item.ib_img_paths, item.ib_img_size, img_scale, img_mips, img_corner, item.ib_img_space)
           end
         end
       end
@@ -619,26 +641,49 @@ for _, groupName in pairs(item_types) do
             -- end
             
             -- Build Letter Badges
-            if is_good_letters then
-              Build_letter_badge_pictures(item.pictures, item.ib_let_badge, invert, (sheet.variation_count or 1) * (sheet.repeat_count or 1), let_corner)
+            if is_good_letters and not is_good_paths then
+              Build_letter_badge_pictures(item.pictures, item.ib_let_badge, invert_str, (sheet.variation_count or 1) * (sheet.repeat_count or 1), let_corner)
             end
 
             -- Build Image Badges
-            if is_good_paths then
+            if is_good_paths and not is_good_letters then
               Build_img_badge_pictures(item.pictures, item.ib_img_paths, item.ib_img_size, img_scale, img_mips, (sheet.variation_count or 1) * (sheet.repeat_count or 1), img_corner, item.ib_img_space)
+            end
+
+            -- Build Letter and Image Badges in the correct order
+            if is_good_paths and is_good_letters then
+              if ib_let_on_top then
+                Build_img_badge_pictures(item.pictures, item.ib_img_paths, item.ib_img_size, img_scale, img_mips, (sheet.variation_count or 1) * (sheet.repeat_count or 1), img_corner, item.ib_img_space)
+                Build_letter_badge_pictures(item.pictures, item.ib_let_badge, invert_str, (sheet.variation_count or 1) * (sheet.repeat_count or 1), let_corner)
+              else
+                Build_letter_badge_pictures(item.pictures, item.ib_let_badge, invert_str, (sheet.variation_count or 1) * (sheet.repeat_count or 1), let_corner)
+                Build_img_badge_pictures(item.pictures, item.ib_img_paths, item.ib_img_size, img_scale, img_mips, (sheet.variation_count or 1) * (sheet.repeat_count or 1), img_corner, item.ib_img_space)
+              end
             end
           else
             -- if item.pictures is an array of {layer = stuff}, then add badges to each variant.
             for i, picture in pairs(item.pictures) do
               -- Build Letter Badges
-              if is_good_letters then
-                Build_letter_badge_pictures(picture, item.ib_let_badge, invert, 1, let_corner)
+              if is_good_letters and not is_good_paths then
+                Build_letter_badge_pictures(picture, item.ib_let_badge, invert_str, 1, let_corner)
               end
 
               -- Build Image Badges
-              if is_good_paths then
+              if is_good_paths and not is_good_letters then
                 Build_img_badge_pictures(picture, item.ib_img_paths, item.ib_img_size, img_scale, img_mips, 1, img_corner, item.ib_img_space)
               end
+
+              -- Build Letter and Image Badges in the correct order
+              if is_good_paths and is_good_letters then
+                if ib_let_on_top then
+                  Build_img_badge_pictures(picture, item.ib_img_paths, item.ib_img_size, img_scale, img_mips, 1, img_corner, item.ib_img_space)
+                  Build_letter_badge_pictures(picture, item.ib_let_badge, invert_str, 1, let_corner)
+                else
+                  Build_letter_badge_pictures(picture, item.ib_let_badge, invert_str, 1, let_corner)
+                  Build_img_badge_pictures(picture, item.ib_img_paths, item.ib_img_size, img_scale, img_mips, 1, img_corner, item.ib_img_space)
+                end
+              end
+
             end
           end
         end
@@ -671,14 +716,26 @@ for _, groupName in pairs(item_types) do
           -- wait why is this part happening; i just forget and am very tired
           for _, layer in pairs(item.pictures.layers) do
             -- Build Letter Badges
-            if is_good_letters then
-              Build_letter_badge_pictures(layer, item.ib_let_badge, invert, 1, let_corner)
+            if is_good_letters and not is_good_paths then
+              Build_letter_badge_pictures(layer, item.ib_let_badge, invert_str, 1, let_corner)
             end
 
             -- Build Image Badges
-            if is_good_paths then
+            if is_good_paths and not is_good_letters then
               Build_img_badge_pictures(layer, item.ib_img_paths, item.ib_img_size, img_scale, img_mips, 1, img_corner, item.ib_img_space)
             end
+
+            -- Build Letter and Image Badges in the correct order
+            if is_good_paths and is_good_letters then
+              if ib_let_on_top then
+                Build_img_badge_pictures(layer, item.ib_img_paths, item.ib_img_size, img_scale, img_mips, 1, img_corner, item.ib_img_space)
+                Build_letter_badge_pictures(layer, item.ib_let_badge, invert_str, 1, let_corner)
+              else
+                Build_letter_badge_pictures(layer, item.ib_let_badge, invert_str, 1, let_corner)
+                Build_img_badge_pictures(layer, item.ib_img_paths, item.ib_img_size, img_scale, img_mips, 1, img_corner, item.ib_img_space)
+              end
+            end
+
           end
         end
       end
