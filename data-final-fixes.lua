@@ -254,13 +254,13 @@ function Build_single_letter_badge_icon(letter, case, invert, justify, corner, t
   }
 end
 
-function Build_single_img_badge_icon(path, size, scale, mips, corner)
+function Build_single_img_badge_icon(path, size, scale, mips, corner, spacing)
   -- Credit to Elusive for helping with badges
 
   -- Image Shift
   local direction = Corner_to_direction(corner)
   local shift = {
-    direction[1] * (default_badge_shift_icon[1] + (user_badge_scale * default_badge_shift_icon_adjust[1] / 2)),
+    direction[1] * (default_badge_shift_icon[1] + (user_badge_scale * ((default_badge_shift_icon_adjust[1] / 2) + spacing ))),
     direction[2] * (default_badge_shift_icon[2] + (user_badge_scale * default_badge_shift_icon_adjust[2] / 2))
   }
 
@@ -357,13 +357,13 @@ function Build_letter_badge_pictures(picture, badge, invert, repeat_count, corne
   end
 end
 
-function Build_single_img_badge_pictures(path, size, scale, mips, corner)
+function Build_single_img_badge_pictures(path, size, scale, mips, corner, spacing)
   -- Credit to Elusive for helping with badges
   
   -- Image Shift
   local direction = Corner_to_direction(corner)
   local shift = {
-    - direction[1] * (default_badge_shift_picture[1] - (user_badge_scale * default_badge_scale_picture / 2)),
+    - direction[1] * (default_badge_shift_picture[1] - ((user_badge_scale * (default_badge_scale_picture / 2) + (spacing/64)) )),
     - direction[2] * (default_badge_shift_picture[2] - (user_badge_scale * default_badge_scale_picture / 2)),
   }
 
@@ -377,15 +377,17 @@ function Build_single_img_badge_pictures(path, size, scale, mips, corner)
   }
 end
 
-function Build_img_badge_pictures(picture, paths, size, scale, mips, repeat_count, corner)
+function Build_img_badge_pictures(picture, paths, size, scale, mips, repeat_count, corner, spacing)
   if not picture.layers then
     local newLayer = table.deepcopy(picture)
     picture.layers = {newLayer}
   end
 
-  for _, path in pairs(paths) do
+  local current_spacing = 0
+  for i, path in pairs(paths) do
     -- Image Badge
-    picture.layers[#picture.layers + 1] = Build_single_img_badge_pictures(path, size, scale, mips, corner)
+    if spacing then current_spacing = current_spacing + ((i - 1) * spacing) end
+    picture.layers[#picture.layers + 1] = Build_single_img_badge_pictures(path, size, scale, mips, corner, current_spacing)
     picture.layers[#picture.layers].repeat_count = repeat_count
     picture.layers[#picture.layers].is_badge_layer = true
   end
@@ -483,7 +485,7 @@ for _, groupName in pairs(item_types) do
       local let_corner = item.ib_let_corner or "left-top"
       local img_corner = item.ib_img_corner or "left-top"
       local img_scale  = item.ib_img_scale  or default_badge_scale_picture
-      local img_mips = item.ib_img_mips or 0
+      local img_mips   = item.ib_img_mips or 0
 
 
 
@@ -535,8 +537,10 @@ for _, groupName in pairs(item_types) do
       -- Build image badges into 'icons' ib_show_badges says to
       if is_good_paths then
         if ib_show_badges ~= "Only Belts" then
-          for _, path in pairs(item.ib_img_paths) do
-            item.icons[#item.icons + 1] = Build_single_img_badge_icon(path, item.ib_img_size, img_scale, img_mips, img_corner)
+          local spacing = 0
+          for i, path in pairs(item.ib_img_paths) do
+            if item.ib_img_space then spacing = spacing + ((i - 1) * item.ib_img_space) end
+            item.icons[#item.icons + 1] = Build_single_img_badge_icon(path, item.ib_img_size, img_scale, img_mips, img_corner, spacing)
             item.icons[#item.icons].is_badge_layer = true
           end
         end
@@ -621,7 +625,7 @@ for _, groupName in pairs(item_types) do
 
             -- Build Image Badges
             if is_good_paths then
-              Build_img_badge_pictures(item.pictures, item.ib_img_paths, item.ib_img_size, img_scale, img_mips, (sheet.variation_count or 1) * (sheet.repeat_count or 1), img_corner)
+              Build_img_badge_pictures(item.pictures, item.ib_img_paths, item.ib_img_size, img_scale, img_mips, (sheet.variation_count or 1) * (sheet.repeat_count or 1), img_corner, item.ib_img_space)
             end
           else
             -- if item.pictures is an array of {layer = stuff}, then add badges to each variant.
@@ -633,7 +637,7 @@ for _, groupName in pairs(item_types) do
 
               -- Build Image Badges
               if is_good_paths then
-                Build_img_badge_pictures(picture, item.ib_img_paths, item.ib_img_size, img_scale, img_mips, 1, img_corner)
+                Build_img_badge_pictures(picture, item.ib_img_paths, item.ib_img_size, img_scale, img_mips, 1, img_corner, item.ib_img_space)
               end
             end
           end
@@ -673,7 +677,7 @@ for _, groupName in pairs(item_types) do
 
             -- Build Image Badges
             if is_good_paths then
-              Build_img_badge_pictures(layer, item.ib_img_paths, item.ib_img_size, img_scale, img_mips, 1, img_corner)
+              Build_img_badge_pictures(layer, item.ib_img_paths, item.ib_img_size, img_scale, img_mips, 1, img_corner, item.ib_img_space)
             end
           end
         end

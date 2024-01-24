@@ -29,6 +29,8 @@ Hint Corollary : Those are debug options. They shouldn't melt your game, but tre
 ## For Modders
 Good news! This is super duper easy to use. To add a badge to any *item*, *fluid* or *recipe*, you can add a Letter badge and/or an Image Badge, in different corners if you wish!
 
+The font that Factorio uses is called Titillium Web, which is unfortunately not mono-spaced, meaning characters have varying pixel widths. Thus, I built the letter badge functions to justify things properly *manually*. Because image badges can be any size, I didn't build justification functionality into it.
+
 ### Letter Badge
 To add a letter badge, add the following properties to its prototype:
 1. **ib_let_badge** :
@@ -61,6 +63,9 @@ To add a image badge, add the following properties to its prototype:
 
 5. **ib_img_scale** :
    *(optional)* A knob for modders to scale the image badges. This number will potentially differ between images, because the profile of the image may not take up the full (say) 64x64 px canvas. Determine empirically.
+
+6. **ib_img_space** :
+   *(optional)* Controls spacing between image badges, one value for all. This is in pixels.
 
 ## Notes
 I add badges in data-final-fixes.lua. As long as you add those properties to your items, fluids or recipes before then -- either by using data.lua, data-updates.lua, or making my mod an optional dependency of yours, it should work. You shouldn't have to fuss with anything else.
