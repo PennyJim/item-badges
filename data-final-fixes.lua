@@ -363,7 +363,7 @@ function Build_single_img_badge_pictures(path, size, scale, mips, corner, spacin
   -- Image Shift
   local direction = Corner_to_direction(corner)
   local shift = {
-    - direction[1] * (default_badge_shift_picture[1] - ((user_badge_scale * (default_badge_scale_picture / 2) + (spacing/64)) )),
+    - direction[1] * (default_badge_shift_picture[1] - (user_badge_scale * ((default_badge_scale_picture / 2) + (spacing/64))) ),
     - direction[2] * (default_badge_shift_picture[2] - (user_badge_scale * default_badge_scale_picture / 2)),
   }
 
