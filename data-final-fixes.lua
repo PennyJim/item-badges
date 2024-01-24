@@ -415,7 +415,7 @@ for _, groupName in pairs(item_types) do
 
       -- Get the 'invert' and 'corner' data from the entry, if any
       local invert = ""
-      if item.ib_badge_inv then invert = "-inv" end
+      if item.ib_invert then invert = "-inv" end
       local case = ""
       local corner = item.ib_corner
       if not corner then corner = "left-top" end
