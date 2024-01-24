@@ -1,4 +1,12 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.1.0
+Date: 1-24-2023
+  Changes:
+    - Breaking change: ib_badge became ib_let_badge
+    - Breaking change: ib_corner became ib_let_corner
+    - Breaking change: ib_invert became ib_let_invert
+    - Implemented Image Badges
+---------------------------------------------------------------------------------------------------
 Version: 1.0.6
 Date: 1-24-2023
   Changes:

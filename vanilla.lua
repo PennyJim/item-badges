@@ -4,9 +4,17 @@ function Process_badges(currentBadgeList)
   for subListName, subList in pairs(currentBadgeList) do
     for itemName, itemBadge in pairs(subList) do
       if data.raw[subListName][itemName] and not data.raw[subListName][itemName].ib_badge then
-        data.raw[subListName][itemName].ib_badge      = itemBadge.badge
-        data.raw[subListName][itemName].ib_invert     = itemBadge.invert
-        data.raw[subListName][itemName].ib_corner     = itemBadge.corner
+        -- Letter Badge properties
+        data.raw[subListName][itemName].ib_let_badge  = itemBadge.let_badge
+        data.raw[subListName][itemName].ib_let_invert = itemBadge.let_invert
+        data.raw[subListName][itemName].ib_let_corner = itemBadge.let_corner
+
+        -- Image Badge properties
+        data.raw[subListName][itemName].ib_img_paths  = itemBadge.img_paths
+        data.raw[subListName][itemName].ib_img_corner = itemBadge.img_corner
+        data.raw[subListName][itemName].ib_img_size   = itemBadge.img_size
+        data.raw[subListName][itemName].ib_img_scale  = itemBadge.img_scale
+        data.raw[subListName][itemName].ib_img_mips   = itemBadge.img_mips
       end
     end
   end
@@ -21,193 +29,193 @@ local badgeList = {}
 -- Items
 badgeList["item"] = {
   -- Plates
-  ["iron-plate"]                      = {badge = "Fe", },
-  ["copper-plate"]                    = {badge = "Cu", },
+  ["iron-plate"]                      = {let_badge = "Fe", },
+  ["copper-plate"]                    = {let_badge = "Cu", },
 
   -- Ores
-  ["iron-ore"]                        = {badge = "Fe", },
-  ["copper-ore"]                      = {badge = "Cu", },
-  ["uranium-ore"]                     = {badge = "U",  },
-  ["coal"]                            = {badge = "C",  },
-  ["stone"]                           = {badge = "S",  },
+  ["iron-ore"]                        = {let_badge = "Fe", },
+  ["copper-ore"]                      = {let_badge = "Cu", },
+  ["uranium-ore"]                     = {let_badge = "U",  },
+  ["coal"]                            = {let_badge = "C",  },
+  ["stone"]                           = {let_badge = "S",  },
 
   -- Belts
-  ["transport-belt"]                  = {badge = "Y",  },
-  ["fast-transport-belt"]             = {badge = "R",  },
-  ["express-transport-belt"]          = {badge = "B",  },
-  ["underground-belt"]                = {badge = "Y",  },
-  ["fast-underground-belt"]           = {badge = "R",  },
-  ["express-underground-belt"]        = {badge = "B",  },
-  ["splitter"]                        = {badge = "Y",  },
-  ["fast-splitter"]                   = {badge = "R",  },
-  ["express-splitter"]                = {badge = "B",  },
+  ["transport-belt"]                  = {let_badge = "Y",  },
+  ["fast-transport-belt"]             = {let_badge = "R",  },
+  ["express-transport-belt"]          = {let_badge = "B",  },
+  ["underground-belt"]                = {let_badge = "Y",  },
+  ["fast-underground-belt"]           = {let_badge = "R",  },
+  ["express-underground-belt"]        = {let_badge = "B",  },
+  ["splitter"]                        = {let_badge = "Y",  },
+  ["fast-splitter"]                   = {let_badge = "R",  },
+  ["express-splitter"]                = {let_badge = "B",  },
 
   -- Circuits
-  ["electronic-circuit"]              = {badge = "G",  },
-  ["advanced-circuit"]                = {badge = "R",  },
-  ["processing-unit"]                 = {badge = "B",  },
+  ["electronic-circuit"]              = {let_badge = "G",  },
+  ["advanced-circuit"]                = {let_badge = "R",  },
+  ["processing-unit"]                 = {let_badge = "B",  },
 
   -- Wire
-  ["red-wire"]                        = {badge = "R",  },
-  ["green-wire"]                      = {badge = "G",  },
-  ["copper-cable"]                    = {badge = "Cu", },
+  ["red-wire"]                        = {let_badge = "R",  },
+  ["green-wire"]                      = {let_badge = "G",  },
+  ["copper-cable"]                    = {let_badge = "Cu", },
   
   -- Chests
-  ["logistic-chest-active-provider"]  = {badge = "A",  },
-  ["logistic-chest-passive-provider"] = {badge = "P",  },
-  ["logistic-chest-storage"]          = {badge = "S",  },
-  ["logistic-chest-buffer"]           = {badge = "B",  },
-  ["logistic-chest-requester"]        = {badge = "R",  },
+  ["logistic-chest-active-provider"]  = {let_badge = "A",  },
+  ["logistic-chest-passive-provider"] = {let_badge = "P",  },
+  ["logistic-chest-storage"]          = {let_badge = "S",  },
+  ["logistic-chest-buffer"]           = {let_badge = "B",  },
+  ["logistic-chest-requester"]        = {let_badge = "R",  },
 
   -- Barrels
-  ["crude-oil-barrel"]                = {badge = "C",  },
-  ["water-barrel"]                    = {badge = "W",  },
-  ["light-oil-barrel"]                = {badge = "L",  },
-  ["heavy-oil-barrel"]                = {badge = "H",  },
-  ["lubricant-barrel"]                = {badge = "Lu"  },
-  ["petroleum-gas-barrel"]            = {badge = "P",  },
-  ["sulfuric-acid-barrel"]            = {badge = "SA", },
+  ["crude-oil-barrel"]                = {let_badge = "C",  },
+  ["water-barrel"]                    = {let_badge = "W",  },
+  ["light-oil-barrel"]                = {let_badge = "L",  },
+  ["heavy-oil-barrel"]                = {let_badge = "H",  },
+  ["lubricant-barrel"]                = {let_badge = "Lu"  },
+  ["petroleum-gas-barrel"]            = {let_badge = "P",  },
+  ["sulfuric-acid-barrel"]            = {let_badge = "SA", },
 
   -- Fuel
-  ["nuclear-fuel"]                    = {badge = "NF", },
-  ["rocket-fuel"]                     = {badge = "RF", },
+  ["nuclear-fuel"]                    = {let_badge = "NF", },
+  ["rocket-fuel"]                     = {let_badge = "RF", },
 
   -- Inserter
-  ["burner-inserter"]                 = {badge = "B",  },
-  ["inserter"]                        = {badge = "I",  },
-  ["fast-inserter"]                   = {badge = "Fa", },
-  ["long-handed-inserter"]            = {badge = "LH", },
-  ["filter-inserter"]                 = {badge = "Fi", },
-  ["stack-inserter"]                  = {badge = "S",  },
-  ["stack-filter-inserter"]           = {badge = "SF", },
+  ["burner-inserter"]                 = {let_badge = "B",  },
+  ["inserter"]                        = {let_badge = "I",  },
+  ["fast-inserter"]                   = {let_badge = "Fa", },
+  ["long-handed-inserter"]            = {let_badge = "LH", },
+  ["filter-inserter"]                 = {let_badge = "Fi", },
+  ["stack-inserter"]                  = {let_badge = "S",  },
+  ["stack-filter-inserter"]           = {let_badge = "SF", },
 
   -- Equipment
-  ["energy-shield-equipment"]         = {badge = "1",  },
-  ["energy-shield-mk2-equipment"]     = {badge = "2",  },
-  ["personal-roboport-equipment"]     = {badge = "1",  },
-  ["personal-roboport-mk2-equipment"] = {badge = "2",  },
+  ["energy-shield-equipment"]         = {let_badge = "1",  },
+  ["energy-shield-mk2-equipment"]     = {let_badge = "2",  },
+  ["personal-roboport-equipment"]     = {let_badge = "1",  },
+  ["personal-roboport-mk2-equipment"] = {let_badge = "2",  },
 
   -- Misc
-  ["explosives"]                      = {badge = "E",  },
+  ["explosives"]                      = {let_badge = "E",  },
   
   -- Test
   -- ["plastic-bar"] = {badge = "Pl"},
   -- ["steel-plate"] = {badge = "SP"},
-  -- ["sulfur"]      = {badge = "Su"},
+  -- ["sulfur"]      = {img_paths = {"__galdocs-manufacturing__/graphics/badges/heavy-load-bearing.png"}, img_size = 64, img_scale = 0.2},
 }
 
 badgeList["tool"] = {
   -- Science Packs
-  ["automation-science-pack"]         = {badge = "A",  },
-  ["logistic-science-pack"]           = {badge = "L",  },
-  ["military-science-pack"]           = {badge = "M",  },
-  ["chemical-science-pack"]           = {badge = "C",  },
-  ["production-science-pack"]         = {badge = "P",  },
-  ["utility-science-pack"]            = {badge = "U",  },
-  ["space-science-pack"]              = {badge = "S",  },
+  ["automation-science-pack"]         = {let_badge = "A",  },
+  ["logistic-science-pack"]           = {let_badge = "L",  },
+  ["military-science-pack"]           = {let_badge = "M",  },
+  ["chemical-science-pack"]           = {let_badge = "C",  },
+  ["production-science-pack"]         = {let_badge = "P",  },
+  ["utility-science-pack"]            = {let_badge = "U",  },
+  ["space-science-pack"]              = {let_badge = "S",  },
 }
 
 badgeList["module"] = {
   -- Effectivity
-  ["effectivity-module"]              = {badge = "E",  },
-  ["effectivity-module-2"]            = {badge = "E",  },
-  ["effectivity-module-3"]            = {badge = "E",  },
+  ["effectivity-module"]              = {let_badge = "E",  },
+  ["effectivity-module-2"]            = {let_badge = "E",  },
+  ["effectivity-module-3"]            = {let_badge = "E",  },
   
   -- Productivity
-  ["productivity-module"]             = {badge = "P",  },
-  ["productivity-module-2"]           = {badge = "P",  },
-  ["productivity-module-3"]           = {badge = "P",  },
+  ["productivity-module"]             = {let_badge = "P",  },
+  ["productivity-module-2"]           = {let_badge = "P",  },
+  ["productivity-module-3"]           = {let_badge = "P",  },
 
   -- Speed
-  ["speed-module"]                    = {badge = "S",  },
-  ["speed-module-2"]                  = {badge = "S",  },
-  ["speed-module-3"]                  = {badge = "S",  },
+  ["speed-module"]                    = {let_badge = "S",  },
+  ["speed-module-2"]                  = {let_badge = "S",  },
+  ["speed-module-3"]                  = {let_badge = "S",  },
 }
 
 badgeList["ammo"] = {
   -- Magazines
-  ["firearm-magazine"]                = {badge = "NR", },
-  ["piercing-rounds-magazine"]        = {badge = "PR", },
-  ["uranium-rounds-magazine"]         = {badge = "UR", },
+  ["firearm-magazine"]                = {let_badge = "NR", },
+  ["piercing-rounds-magazine"]        = {let_badge = "PR", },
+  ["uranium-rounds-magazine"]         = {let_badge = "UR", },
 
   -- Shotgun Shells
-  ["shotgun-shell"]                   = {badge = "SS", },
-  ["piercing-shotgun-shell"]          = {badge = "PS", },
+  ["shotgun-shell"]                   = {let_badge = "SS", },
+  ["piercing-shotgun-shell"]          = {let_badge = "PS", },
 
   -- Rockets
-  ["rocket"]                          = {badge = "R",  },
-  ["explosive-rocket"]                = {badge = "ER", },
-  ["atomic-bomb"]                     = {badge = "AB", },
+  ["rocket"]                          = {let_badge = "R",  },
+  ["explosive-rocket"]                = {let_badge = "ER", },
+  ["atomic-bomb"]                     = {let_badge = "AB", },
 
   -- Cannon Shells
-  ["cannon-shell"]                    = {badge = "CS", },
-  ["explosive-cannon-shell"]          = {badge = "ES", },
-  ["uranium-cannon-shell"]            = {badge = "US", },
-  ["explosive-uranium-cannon-shell"]  = {badge = "UE", },
+  ["cannon-shell"]                    = {let_badge = "CS", },
+  ["explosive-cannon-shell"]          = {let_badge = "ES", },
+  ["uranium-cannon-shell"]            = {let_badge = "US", },
+  ["explosive-uranium-cannon-shell"]  = {let_badge = "UE", },
 }
 
 badgeList["capsule"] = {
   -- Grenades
-  ["grenade"]                         = {badge = "G",  },
-  ["cluster-grenade"]                 = {badge = "CG", },
+  ["grenade"]                         = {let_badge = "G",  },
+  ["cluster-grenade"]                 = {let_badge = "CG", },
 
   -- Capsules
-  ["poison-capsule"]                  = {badge = "PC", },
-  ["slowdown-capsule"]                = {badge = "SC", },
+  ["poison-capsule"]                  = {let_badge = "PC", },
+  ["slowdown-capsule"]                = {let_badge = "SC", },
 
   -- Specialty
-  ["cliff-explosives"]                = {badge = "CE", },
+  ["cliff-explosives"]                = {let_badge = "CE", },
 }
 
 badgeList["blueprint"] = {
-  ["blueprint"]                       = {badge = "B", },
+  ["blueprint"]                       = {let_badge = "B", },
 }
 
 badgeList["upgrade-item"] = {
-  ["upgrade-planner"]                 = {badge = "U",  },
+  ["upgrade-planner"]                 = {let_badge = "U",  },
 }
 
 badgeList["deconstruction-item"] = {
-  ["deconstruction-planner"]          = {badge = "D",  },
+  ["deconstruction-planner"]          = {let_badge = "D",  },
 }
 
 badgeList["fluid"] = {
-  ["crude-oil"]                = {badge = "C",  },
-  ["water"]                    = {badge = "W",  },
-  ["light-oil"]                = {badge = "L",  },
-  ["heavy-oil"]                = {badge = "H",  },
-  ["lubricant"]                = {badge = "Lu"  },
-  ["petroleum-gas"]            = {badge = "P",  },
-  ["sulfuric-acid"]            = {badge = "SA", },
+  ["crude-oil"]                       = {let_badge = "C",  },
+  ["water"]                           = {let_badge = "W",  },
+  ["light-oil"]                       = {let_badge = "L",  },
+  ["heavy-oil"]                       = {let_badge = "H",  },
+  ["lubricant"]                       = {let_badge = "Lu"  },
+  ["petroleum-gas"]                   = {let_badge = "P",  },
+  ["sulfuric-acid"]                   = {let_badge = "SA", },
 }
 
 -- Recipes
 badgeList["recipe"] = {
   -- Fill Barrels
-  ["fill-crude-oil-barrel"]                 = {badge = "C",  corner = "left-bottom"},
-  ["fill-water-barrel"]                     = {badge = "W",  corner = "left-bottom"},
-  ["fill-light-oil-barrel"]                 = {badge = "L",  corner = "left-bottom"},
-  ["fill-heavy-oil-barrel"]                 = {badge = "H",  corner = "left-bottom"},
-  ["fill-lubricant-barrel"]                 = {badge = "Lu", corner = "left-bottom"},
-  ["fill-petroleum-gas-barrel"]             = {badge = "P",  corner = "left-bottom"},
-  ["fill-sulfuric-acid-barrel"]             = {badge = "SA", corner = "left-bottom"},
+  ["fill-crude-oil-barrel"]           = {let_badge = "C",  let_corner = "left-bottom"},
+  ["fill-water-barrel"]               = {let_badge = "W",  let_corner = "left-bottom"},
+  ["fill-light-oil-barrel"]           = {let_badge = "L",  let_corner = "left-bottom"},
+  ["fill-heavy-oil-barrel"]           = {let_badge = "H",  let_corner = "left-bottom"},
+  ["fill-lubricant-barrel"]           = {let_badge = "Lu", let_corner = "left-bottom"},
+  ["fill-petroleum-gas-barrel"]       = {let_badge = "P",  let_corner = "left-bottom"},
+  ["fill-sulfuric-acid-barrel"]       = {let_badge = "SA", let_corner = "left-bottom"},
 
   -- Empty Barrels
-  ["empty-crude-oil-barrel"]                = {badge = "C",  corner = "left-bottom"},
-  ["empty-water-barrel"]                    = {badge = "W",  corner = "left-bottom"},
-  ["empty-light-oil-barrel"]                = {badge = "L",  corner = "left-bottom"},
-  ["empty-heavy-oil-barrel"]                = {badge = "H",  corner = "left-bottom"},
-  ["empty-lubricant-barrel"]                = {badge = "Lu", corner = "left-bottom"},
-  ["empty-petroleum-gas-barrel"]            = {badge = "P",  corner = "left-bottom"},
-  ["empty-sulfuric-acid-barrel"]            = {badge = "SA", corner = "left-bottom"},
+  ["empty-crude-oil-barrel"]          = {let_badge = "C",  let_corner = "left-bottom"},
+  ["empty-water-barrel"]              = {let_badge = "W",  let_corner = "left-bottom"},
+  ["empty-light-oil-barrel"]          = {let_badge = "L",  let_corner = "left-bottom"},
+  ["empty-heavy-oil-barrel"]          = {let_badge = "H",  let_corner = "left-bottom"},
+  ["empty-lubricant-barrel"]          = {let_badge = "Lu", let_corner = "left-bottom"},
+  ["empty-petroleum-gas-barrel"]      = {let_badge = "P",  let_corner = "left-bottom"},
+  ["empty-sulfuric-acid-barrel"]      = {let_badge = "SA", let_corner = "left-bottom"},
 
   -- Solid Fuel
-  ["solid-fuel-from-light-oil"]             = {badge = "L",  corner = "left-bottom"},
-  ["solid-fuel-from-heavy-oil"]             = {badge = "H",  corner = "left-bottom"},
-  ["solid-fuel-from-petroleum-gas"]         = {badge = "P",  corner = "left-bottom"},
+  ["solid-fuel-from-light-oil"]       = {let_badge = "L",  let_corner = "left-bottom"},
+  ["solid-fuel-from-heavy-oil"]       = {let_badge = "H",  let_corner = "left-bottom"},
+  ["solid-fuel-from-petroleum-gas"]   = {let_badge = "P",  let_corner = "left-bottom"},
 
   -- Misc
-  ["nuclear-fuel"]                          = {badge = "NF", },
+  ["nuclear-fuel"]                    = {let_badge = "NF", },
 }
 
 
@@ -240,23 +248,19 @@ local item = {
   }
 }
 data:extend({item})
-data.raw.item["globulent"].ib_badge = "Hi"
+data.raw.item["globulent"].ib_let_badge = "Hi"
 --]]
 
 --[[
 -- This stuff is just for the supplementary images on the mod page
----@diagnostics disable
-
--- IGNORE YELLOW SQUIGGLIES; that's just FMTK and VS Code. It works.
-
 -- Adds the badge "St" to all Stone items
-data.raw.item["stone"].ib_badge = "St"
+data.raw.item["stone"].ib_let_badge = "St"
 
 -- Adds the badge "Co", with inverted text shades, to all Coal items
-data.raw.item["coal"].ib_badge = "Co"
-data.raw.item["coal"].ib_invert = "whatever"
+data.raw.item["coal"].ib_let_badge = "Co"
+data.raw.item["coal"].ib_let_invert = "whatever"
 
 -- Adds the badge "Fe" to the iron plate recipe in the left-bottom corner
-data.raw.recipe["nuclear-fuel"].ib_badge = "NF"
-data.raw.recipe["nuclear-fuel"].ib_corner = "left-bottom"
+data.raw.recipe["nuclear-fuel"].ib_let_badge = "NF"
+data.raw.recipe["nuclear-fuel"].ib_let_corner = "left-bottom"
 --]]
