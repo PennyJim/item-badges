@@ -1,7 +1,13 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.1.02
+Date: 1-24-2023
+  Changes:
+    - Remembered to comment out my stupid testing line so it doesn't crash on startup
+---------------------------------------------------------------------------------------------------
 Version: 1.1.01
 Date: 1-24-2023
   Changes:
+    - Implemented multiple-image badges
     - Implemented ordering of Image and Letter Badges
 ---------------------------------------------------------------------------------------------------
 Version: 1.1.0

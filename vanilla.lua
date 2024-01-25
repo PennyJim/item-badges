@@ -105,7 +105,7 @@ badgeList["item"] = {
   -- Test
   -- ["plastic-bar"] = {badge = "Pl"},
   -- ["steel-plate"] = {badge = "SP"},
-  ["sulfur"]      = {let_on_top = false, let_badge = "Sus", let_corner = "left-top", img_paths = {"__galdocs-manufacturing__/graphics/badges/heavy-load-bearing.png", "__galdocs-manufacturing__/graphics/badges/high-tensile.png"}, img_size = 64, img_scale = 0.2, img_space = 10, img_corner = "left-top"},
+  -- ["sulfur"]      = {let_on_top = false, let_badge = "Sus", let_corner = "left-top", img_paths = {"__galdocs-manufacturing__/graphics/badges/heavy-load-bearing.png", "__galdocs-manufacturing__/graphics/badges/high-tensile.png"}, img_size = 64, img_scale = 0.2, img_space = 10, img_corner = "left-top"},
 }
 
 badgeList["tool"] = {
