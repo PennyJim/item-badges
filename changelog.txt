@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.1.03
+Date: 1-26-2023
+  Changes:
+    - Minor refactor for use in Galdoc's Manufacturing; badge creation functions are now available
+      to all modders at data.lua stage.
+---------------------------------------------------------------------------------------------------
 Version: 1.1.02
 Date: 1-24-2023
   Changes:
