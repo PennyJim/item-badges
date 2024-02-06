@@ -1,3 +1,13 @@
+if mods["galdocs-manufacturing"] then
+  data:extend({
+    { -- Mod on or off
+      type = "bool-setting",
+      name = "ib-active",
+      setting_type = "startup",
+      default_value = "true",
+    },
+  })
+end
 data:extend({
   { -- Badges setting
     type = "string-setting",

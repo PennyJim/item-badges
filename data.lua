@@ -133,6 +133,13 @@ Ib_global.ib_show_badges_scale              = settings.startup["ib-show-badges-s
 Ib_global.ib_badge_opacity                  = settings.startup["ib-badge-opacity"].value
 Ib_global.ib_zoom_visibility                = settings.startup["ib-zoom-visibility"].value
 
+-- GM dependent variable
+if settings.startup["ib-active"] then 
+  Ib_global.ib_active = settings.startup["ib-active"].value
+else
+  Ib_global.ib_active = true
+end
+
 -- Parsing Badge Scale
 Ib_global.user_badge_scale_table = {
   ["Tiny"]    = .5,

@@ -112,7 +112,7 @@ function Build_single_img_badge_icon(path, size, scale, mips, corner, spacing)
     scale = Ib_global.user_badge_scale * scale,
     icon = path, 
     icon_size = size,
-    icon_mipmaps = mips,
+    icon_mipmaps = mips or Ib_global.mipmapNums,
     shift = shift
   }
 end
@@ -225,7 +225,7 @@ function Build_single_img_badge_pictures(path, size, scale, mips, corner, spacin
     scale = Ib_global.user_badge_scale * scale / 2,
     filename = path,
     size = size,
-    mipmap_count = mips,
+    mipmap_count = mips or Ib_global.mipmapNums,
     shift = shift
   }
 end
