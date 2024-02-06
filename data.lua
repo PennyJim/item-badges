@@ -4,7 +4,8 @@ Ib_global = {}
 
 -- Debug and Logging
 Ib_global.debug                             = false
-Ib_global.log_errors                        = false
+Ib_global.log_errors                        = true
+Ib_global.log_prefix                        = "Icon Badges Error: "
 
 -- Graphical variables
 Ib_global.default_badge_shift_icon          = {-13, -13}
@@ -193,4 +194,4 @@ Ib_global.item_types = {
   "recipe", -- recipes
 }
 
-require("ib_lib")
+require("ib-lib")

@@ -30,6 +30,10 @@ for _, groupName in pairs(Ib_global.item_types) do
       end
     end
 
+    if ((item.ib_let_badge or item.ib_let_invert or item.ib_let_corner) and not is_good_letters) and Ib_global.log_errors then
+      log(Ib_global.log_prefix .. "Set letter badge properties but ib_let_badge isn't good (make sure it is 1, 2 or 3 english letters OR numbers, exactly).")
+    end
+
     local is_good_paths = false
     if item.ib_img_paths and type(item.ib_img_paths) == "table" then
       is_good_paths = true
@@ -38,26 +42,40 @@ for _, groupName in pairs(Ib_global.item_types) do
       end
     end
 
+    if ((item.ib_img_paths or item.ib_img_corner or item.ib_img_size or item.ib_img_scale or item.ib_img_mips or item.ib_img_space) and not is_good_paths) and Ib_global.log_errors then
+      log(Ib_global.log_prefix .. "Set image badge properties but ib_img_paths isn't good (make sure it is an array of strings, each a path to an image, that works).")
+    end
+
     -- If 'ib_let_badge' is well-formed, do the crucial stuff
     if is_good_letters or is_good_paths then
-      
+
       -- Icon
       -- ****
 
       -- Make `icon` data from the products of a recipe that has no innate `icon` or `icons` data
-      if groupName == "recipe" and ((not item.icon) and (not item.icons)) then
-        local product
-        
-        -- Either there's one product, or there's 'main product'
-        if item.result then product = data.raw.item[item.result] end
-        if item.results and #item.results == 1 then product = data.raw.item[item.results[1].name] end
-        if item.main_product then product = data.raw.item[item.main_product] end
-        
-        -- Fill in anything
-        if not item.icon then item.icon = product.icon end
-        if not item.icons then item.icons = product.icons end
-        if not item.icon_size then item.icon_size = product.icon_size end
-        if not item.icon_mipmaps then item.icon_mipmaps = product.icon_mipmaps end
+      if groupName == "recipe" then
+        -- FIXME : Normal vs. Expensive vs. Neither declared?
+
+        if ((not item.icon) and (not item.icons)) then
+          local recipe_data
+          if not (item.expensive or item.normal) then recipe_data = item end
+          if item.normal then recipe_data = item.normal end
+          if item.expensive then recipe_data = item.expensive  end
+          
+          local product
+
+          -- Either there's one product, or there's 'main product'
+          if item.result then product = data.raw.item[item.result] end
+          if item.results and #item.results == 1 then product = data.raw.item[item.results[1].name] end
+          if item.main_product then product = data.raw.item[item.main_product] end
+
+          -- Fill in anything
+          if not item.icon then item.icon = product.icon end
+          if not item.icons then item.icons = product.icons end
+          if not item.icon_size then item.icon_size = product.icon_size end
+          if not item.icon_mipmaps then item.icon_mipmaps = product.icon_mipmaps end
+        end
+
       end
 
       -- Build 'icons' data from icon if present
@@ -70,6 +88,14 @@ for _, groupName in pairs(Ib_global.item_types) do
           }
         }
       end
+
+      if item.icons then
+        for _, icon in pairs(item.icons) do
+          if not icon.icon_size and item.icon_size then icon.icon_size = item.icon_size end
+          -- if not icon.icon_mipmaps and item.icon_mipmaps then icon.icon_mipmaps = item.icon_mipmaps end
+        end
+      end
+
 
       -- icons Mipmap Error Logging
       -- **************************
@@ -92,7 +118,7 @@ for _, groupName in pairs(Ib_global.item_types) do
       if item.ib_let_on_top ~= nil then
         ib_let_on_top = item.ib_let_on_top
       end
-      
+
       local case = ""
 
 
@@ -254,15 +280,25 @@ for _, groupName in pairs(Ib_global.item_types) do
           -- Shove data from 'iconss' into the layer property WITHOUT the badge data.
           for _, icon in pairs(item.icons) do
             if not icon.is_badge_layer then
-              local icon_size = item.icon_size or icon.size
+              local icon_size = icon.icon_size -- or icon.size
               local icon_scale = Ib_global.icon_to_pictures_ratio
+              local icon_mipmaps = icon.icon_mipmaps
+              local icon_tint = icon.tint
+
               local newLayer = {}
-              for k, v in pairs(icon) do
-                newLayer[k] = v
-              end
+
+              -- Just pull over all the properties; chose not to do this because it puts unused 'icon' properties in 'pictures'
+              -- for k, v in pairs(icon) do
+              --   newLayer[k] = v
+              -- end
+
               newLayer.filename = icon.icon
               newLayer.size = icon_size
               newLayer.scale = icon_scale
+              newLayer.mipmap_count = icon_mipmaps
+              newLayer.tint = icon_tint
+              newLayer.is_badge_layer = icon.is_badge_layer
+
               table.insert(item.pictures.layers, newLayer)
             end
           end

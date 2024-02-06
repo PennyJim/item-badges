@@ -7,5 +7,9 @@
   "package":{
 		"ignore":[ "dev/**", "*.py", "*.md" ]
   },
-	"dependencies": ["base >= 1.1"]
+	"dependencies": [
+		"base >= 1.1",
+		"(?) SeaBlockMetaPack >= 1.1.4",
+		"(?) SeaBlock >= 0.5.15"
+	]
 }

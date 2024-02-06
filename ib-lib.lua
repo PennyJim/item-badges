@@ -25,7 +25,7 @@ function Get_case(char)
 end
 
 -- Build Letter Badge functions
--- Icons
+-- Icons Letter
 function Build_single_letter_badge_icon(letter, case, invert, justify, corner, three_position, middle_char)
   -- Credit to Elusive for helping with badges
   
@@ -96,6 +96,7 @@ function Build_letter_badge_icon(icons, let_badge, invert_str, let_corner)
   end
 end
 
+-- Icons Images
 function Build_single_img_badge_icon(path, size, scale, mips, corner, spacing)
   -- Credit to Elusive for helping with badges
 
@@ -125,7 +126,7 @@ function Build_img_badge_icon(icons, paths, size, scale, mips, corner, space)
   end
 end
 
--- Pictures
+-- Pictures Letters
 function Build_single_letter_badge_pictures(letter, case, invert, justify, corner, three_position, middle_char)
   -- Credit to Elusive for helping with badges
   
@@ -208,6 +209,7 @@ function Build_letter_badge_pictures(picture, badge, invert, repeat_count, corne
   end
 end
 
+-- Pictures Images
 function Build_single_img_badge_pictures(path, size, scale, mips, corner, spacing)
   -- Credit to Elusive for helping with badges
   
