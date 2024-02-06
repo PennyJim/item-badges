@@ -113,7 +113,6 @@ Ib_global.char_widths = {
 
   -- 41
   -- [""] = 41,
-
 }
 
 -- Parsing character widths
@@ -159,7 +158,6 @@ if Ib_global.ib_zoom_visibility == "Near" then
   Ib_global.mipmaps = "mip2"
   Ib_global.mipmapNums = 4
 end
-
 
 -- Item types (lists entries in data.raw to check for badge properties)
 Ib_global.item_types = {

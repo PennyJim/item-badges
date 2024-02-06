@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.1.04
+Date: 2-06-2023
+  Changes:
+    - Fixed bug relating to icon_size differing between icon and iconS.
+    - Fixed bug relating to normal vs. expensive mode.
+---------------------------------------------------------------------------------------------------
 Version: 1.1.03
 Date: 1-26-2023
   Changes:

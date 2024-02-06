@@ -21,6 +21,10 @@ for _, groupName in pairs(Ib_global.item_types) do
     -- If "Only GUI" is picked, then all items and recipes gets an 'icons' with badges and items without 'pictures' have one made from 'icons' without badges
     -- If "Only Belts" is picked, icons and recipes aren't touched but every item gets 'pictures' with badges added
 
+    -- Future upgrades:
+    --   For cases with multiple image badges, expose a setting to modders that makes the badges display left-to-right OR top-to-bottom
+    --   When feeling particularly desperate for something to do, make 4 letter badges, or have 3-letter badges actually be left/right justified instead of just centered
+
     -- Check to see if 'ib_let_badge' is well-formed
     local is_good_letters = false
     if item.ib_let_badge and type(item.ib_let_badge) == "string" and (#item.ib_let_badge >= 1 and #item.ib_let_badge <= 3) then
@@ -54,20 +58,19 @@ for _, groupName in pairs(Ib_global.item_types) do
 
       -- Make `icon` data from the products of a recipe that has no innate `icon` or `icons` data
       if groupName == "recipe" then
-        -- FIXME : Normal vs. Expensive vs. Neither declared?
-
         if ((not item.icon) and (not item.icons)) then
+          
+          -- Normal vs. Expensive modes: if, for some insane reason, noraml and expensive mode have different result(s)/main_products, the data from item.expensive will be used
           local recipe_data
           if not (item.expensive or item.normal) then recipe_data = item end
           if item.normal then recipe_data = item.normal end
           if item.expensive then recipe_data = item.expensive  end
           
           local product
-
           -- Either there's one product, or there's 'main product'
-          if item.result then product = data.raw.item[item.result] end
-          if item.results and #item.results == 1 then product = data.raw.item[item.results[1].name] end
-          if item.main_product then product = data.raw.item[item.main_product] end
+          if recipe_data.result then product = data.raw.item[recipe_data.result] end
+          if recipe_data.results and #recipe_data.results == 1 then product = data.raw.item[recipe_data.results[1].name] end
+          if recipe_data.main_product then product = data.raw.item[recipe_data.main_product] end
 
           -- Fill in anything
           if not item.icon then item.icon = product.icon end
