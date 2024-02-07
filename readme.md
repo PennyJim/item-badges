@@ -1,6 +1,6 @@
 # Icon Badges
-## Introduction
-**Icon Badges** is a mod for Factorio designed to make icons and recipes easier to distinguish for those with various forms of colorblindness.
+## Introduction6
+**Icon Badges** is a mod for Factorio designed to make icons and recipes easier to distinguish for those with various forms of colorblindness, or for mods that just have tons of similar-looking icons that would benefit from having further distinction from one another..
 Note: Yes, I misnamed the repository 'item-badges'. Augh.
 
 ## For users
@@ -16,7 +16,7 @@ Hint Corollary : Those are debug options. They shouldn't melt your game, but tre
   - All: The mod will display badges in GUI screens AND on belts.
 
 **Badge Scale:**
-  - How large should the badges be? It starts at Average, and going up or down a tier from there adds or subtracts 25% size.
+  - How large should the badges be? It defaults to Average, and going up or down a tier from there adds or subtracts 25% size.
 
 **Zoom Visibility:**
   - Far: Badges are visible from far away (i.e. they never fade)
@@ -35,7 +35,7 @@ The font that Factorio uses is called Titillium Web, which is unfortunately not 
 To add a letter badge, add the following properties to its prototype:
 1. **ib_let_badge** :
    Must be a 1, 2 or 3 character string, consisting of lower- or upper-case letters or numbers (nothing else!). Valid examples: "AB", "aB", "Ab", "A", "b", "1A", "1", "GUI", "wHy".
-   Note: 3-letter badges are always centered (going left-to-right), though they can be put on the top or bottom of the icon. They're just too wide. Use "ib_corner" like normal; it'll work out the rest.
+   Note: 3-letter badges are always centered horizontally, though they can be put on the top or bottom of the icon. They're just too wide. Use "ib_corner" like normal; it'll work out the rest.
 
 2. **ib_let_invert** :
    *(optional)* Set to anything that isn't 'nil' to invert the text. By default, badges are 'white text with black borders'. To help with collisions, I've also supplied 'black text with white borders.' It's both-or-neither; it's not possible to have one character inverted and another not.
@@ -50,7 +50,7 @@ To add a letter badge, add the following properties to its prototype:
 ### Image Badge
 To add a image badge, add the following properties to its prototype:
 1. **ib_img_paths** :
-   A table of paths (strings). Each should point to the location of the image file. If there's just one, it should be: ib_img_paths = {"whatever.png"}. This allows you to stack them in place.
+   A **TABLE** of paths (strings). Each string should point to the location of the image file. Note: If you have just one path, still enclose it in a table. For example: ib_img_paths = {"whatever.png"}.
 
 2. **ib_img_size** :
    The size of the image file.
@@ -65,7 +65,7 @@ To add a image badge, add the following properties to its prototype:
    *(optional)* A knob for modders to scale the image badges. This number will potentially differ between images, because the profile of the image may not take up the full (say) 64x64 px canvas. Determine empirically.
 
 6. **ib_img_space** :
-   *(optional)* Controls spacing between image badges, one value for all. This is in pixels.
+   *(optional)* Controls spacing between image badges, one value for all, in pixels. If this is 0, all images will stack on top of one another, in order.
 
 ### Interplay
 1. **ib_let_on_top** :
