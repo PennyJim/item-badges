@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.1.06
+Date: 2-07-2023
+  Changes:
+    - Re-tooled the mod to expose Build_badge(prototype, ib_data) function to modders
+    - "ib_active" removed, and replaced with ...
+    - Ib_global.badge_vanilla is a bool that will turn off IB badging vanilla recipes for overhauls
+---------------------------------------------------------------------------------------------------
 Version: 1.1.05
 Date: 2-06-2023
   Changes:

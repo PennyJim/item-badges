@@ -31,8 +31,15 @@ Good news! This is super duper easy to use. To add a badge to any *item*, *fluid
 
 The font that Factorio uses is called Titillium Web, which is unfortunately not mono-spaced, meaning characters have varying pixel widths. Thus, I built the letter badge functions to justify things properly *manually*. Because image badges can be any size, I didn't build justification functionality into it.
 
-### Letter Badge
-To add a letter badge, add the following properties to its prototype:
+First, Icon Badges will attempt to badge vanilla items. If you want to turn off this behavior so that you can do it your own way, simply set `Ib_global.badge_vanilla = false`.
+
+Next, to badge an item, create a table called *ib_data*. ib_data is a table that will contain all of the badge properties, listed below.
+
+Finally, use the function *Build_badge(prototype, ib_data)* to put your badge on the item!
+  - *prototype*: A properly formed *fluid*, *recipe*, *item* or *child-of-item* prototype. See: https://lua-api.factorio.com/latest/prototypes/ItemPrototype.html for a list of all child-of-item prototypes.
+  - *ib_data*: A table with (some of, maybe all; note which ones are listed as *optional*) the following properties.
+
+### Letter Badge Properties
 1. **ib_let_badge** :
    Must be a 1, 2 or 3 character string, consisting of lower- or upper-case letters or numbers (nothing else!). Valid examples: "AB", "aB", "Ab", "A", "b", "1A", "1", "GUI", "wHy".
    Note: 3-letter badges are always centered horizontally, though they can be put on the top or bottom of the icon. They're just too wide. Use "ib_corner" like normal; it'll work out the rest.
@@ -47,8 +54,7 @@ To add a letter badge, add the following properties to its prototype:
   - "right-top"
   - "right-bottom"
 
-### Image Badge
-To add a image badge, add the following properties to its prototype:
+### Image Badge Properties
 1. **ib_img_paths** :
    A **TABLE** of paths (strings). Each string should point to the location of the image file. Note: If you have just one path, still enclose it in a table. For example: ib_img_paths = {"whatever.png"}.
 
@@ -67,17 +73,17 @@ To add a image badge, add the following properties to its prototype:
 6. **ib_img_space** :
    *(optional)* Controls spacing between image badges, one value for all, in pixels. If this is 0, all images will stack on top of one another, in order.
 
-### Interplay
+### Interplay Property
 1. **ib_let_on_top** :
    A boolean value that determines if the letter badge should be on top of the image badge. Default is true.
 
 ## Notes
-I add badges in data-final-fixes.lua. As long as you add those properties to your items, fluids or recipes before then -- either by using data.lua, data-updates.lua, or making my mod an optional dependency of yours, it should work. You shouldn't have to fuss with anything else.
-
-Look in the file vanilla.lua to see an example of how to modify a batch of icons.
-
 If you badge-up a recipe that draw their icon(s) data from its product, and that product has already been badged, you'll get a double-badge. For max compatibility, just badge-up the product item.
 
-I've tried to make the system as robust as possible, but due to how many ways items and recipes can be displayed in their prototypes, you may find some case that I don't handle. Submit an issue on GitHub, and I'll take a look. :)
+I add vanilla badges in data-final-fixes.lua.
+
+Look in the file vanilla.lua to see an example of how to modify a batch of icons across various types of prototypes.
+
+I've tried to make the system as robust as possible, but due to how many ways items and recipes can be displayed in their prototypes, you may find some case that I don't handle. If something breaks, submit an issue on GitHub, and I'll take a look.
 
 P.S. I strongly regret not naming the mod Badger. There's not mushroom for mis snakes, though, and I can't change the past. (if you get this pun, you are the best)
