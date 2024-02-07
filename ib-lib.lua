@@ -373,7 +373,7 @@ function Build_badge(item, ib_data)
     local let_corner    = ib_data.ib_let_corner or "left-top"
     local img_corner    = ib_data.ib_img_corner or "left-top"
     local img_scale     = ib_data.ib_img_scale  or Ib_global.default_badge_scale_picture
-    local img_mips      = ib_data.ib_img_mips   or 0
+    local img_mips      = ib_data.ib_img_mips   or Ib_global.mipmapNums
     local ib_let_on_top = true
     if ib_data.ib_let_on_top ~= nil then
       ib_let_on_top = ib_data.ib_let_on_top

@@ -31,7 +31,7 @@ Good news! This is super duper easy to use. To add a badge to any *item*, *fluid
 
 The font that Factorio uses is called Titillium Web, which is unfortunately not mono-spaced, meaning characters have varying pixel widths. Thus, I built the letter badge functions to justify things properly *manually*. Because image badges can be any size, I didn't build justification functionality into it.
 
-First, Icon Badges will attempt to badge vanilla items. If you want to turn off this behavior so that you can do it your own way, simply set `Ib_global.badge_vanilla = false`.
+First, Icon Badges will attempt to badge vanilla items. If you want to turn off this behavior so that you can do it your own way, simply set `Ib_global.badge_vanilla = false` BEFORE data-final-fixes.lua.
 
 Next, to badge an item, create a table called *ib_data*. ib_data is a table that will contain all of the badge properties, listed below.
 
