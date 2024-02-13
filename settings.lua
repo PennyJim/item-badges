@@ -29,15 +29,3 @@ data:extend({
     allowed_values = {0.25, 0.5, 0.75, 1.0},
   },
 })
-
--- Debug
--- if mods["galdocs-manufacturing"] then
---   data:extend({
---     { -- Mod on or off
---       type = "bool-setting",
---       name = "ib-active",
---       setting_type = "startup",
---       default_value = "true",
---     },
---   })
--- end

@@ -36,8 +36,47 @@ function Parse_char_widths(character)
   return current_width
 end
 
--- Build Letter Badge functions
--- ****************************
+function Get_product_prototype_type(item)
+  -- This will try to find the product's prototype type -- that is, a 'group' in data.raw, i.e. data.raw['group'] might be data.raw['item'] for a recipe.
+  -- It's often the case that an item name will be in both the 'item' and 'recipe' group. This will favor the item group.
+  --   Ex: If there's a prototype with the name "iron-plate" in the 'item' and 'recipe' groups, this will return 'item'.
+  -- DON'T SEND THIS FUNCTION A RECIPE.
+  -- Known issues: If the name of the prototype is in the 'fluid' group and the 'item' group (or 'child-of-item') then this will favor the item, not the fluid.
+  --   Ex: If there's a prototype with the name "iron-plate" in the 'item' and 'fluid' groups (for some reason), then this will return 'item'.
+
+  local current_item_type
+
+  -- Check to see if it's one of the non-item and non-child-of-item types
+  if data.raw.recipe[item] then current_item_type = "recipe" end
+  if data.raw.fluid[item] then current_item_type = "fluid" end
+
+  -- Check if it's an item, and overwrite any result from fluid or recipe
+  for item_type, _ in pairs(Ib_global.item_types) do
+      if data.raw[item_type][item] then
+        current_item_type = item_type
+      end
+  end
+
+  -- Log errors
+  -- Because IB can badge recipes, someone may screw up and try to 'get the product prototype type' of a recipe.
+  if Ib_global.log_errors and current_item_type == "recipe"  then
+    log(Ib_global.log_prefix .. "The prototype name exists only in data.raw.recipe, and is not a child-of-item or fluid.")
+    return "recipe"
+  end
+
+  -- If it's not a fluid or an item or a child of item, then say so
+  if Ib_global.log_errors and not current_item_type then
+    log(Ib_global.log_prefix .. "The prototype name was not found in the fluid, item, child-of-item, or recipe subtables of data.raw.")
+    return "ERROR"
+  end
+  
+  return current_item_type
+end
+
+
+
+-- Build Letter and Image Badge functions
+-- **************************************
 -- Icons Letter
 function Build_single_letter_badge_icon(letter, case, invert, justify, corner, three_position, middle_char)
   -- Credit to Elusive for helping with badges
@@ -52,6 +91,7 @@ function Build_single_letter_badge_icon(letter, case, invert, justify, corner, t
   -- Three character Shift (can only be centered (going left-to-right) but can be on top or bottom)
   local three_shift = 0
   if three_position then
+    direction[1] = math.abs(direction[1]) -- Keeps letters going from left-to-right
     three_shift = Ib_global.three_char_icon_shift[three_position]
     shift = {
       direction[1] * ((Ib_global.user_badge_scale * three_shift * (Parse_char_widths(middle_char))) / 8 ),
@@ -153,6 +193,7 @@ function Build_single_letter_badge_pictures(letter, case, invert, justify, corne
   -- Three character Shift (can only be centered (going left-to-right) but can be on top or bottom)
   local three_shift = 0
   if three_position then
+    direction[1] = math.abs(direction[1]) -- Keeps letters going from left-to-right
     three_shift = Ib_global.three_char_icon_shift[three_position]
     shift = {
       direction[1] * ((Ib_global.user_badge_scale * three_shift * Ib_global.default_badge_scale_picture * (Parse_char_widths(middle_char))) / 8 / 8),
@@ -243,7 +284,7 @@ function Build_single_img_badge_pictures(path, size, scale, mips, corner, spacin
   }
 end
 
-  function Build_img_badge_pictures(picture, paths, size, scale, mips, repeat_count, corner, spacing)
+function Build_img_badge_pictures(picture, paths, size, scale, mips, repeat_count, corner, spacing)
   if not picture.layers then
     local newLayer = table.deepcopy(picture)
     picture.layers = {newLayer}
@@ -260,6 +301,7 @@ end
 end
 
 
+
 -- ******************************************************************************************
 -- The most important function that other modders need to care about; srsly this is the candy
 -- ******************************************************************************************
@@ -270,7 +312,8 @@ function Build_badge(item, ib_data)
   --           * 'result'
   --           * 'results' with 1 entry
   --           * a 'main_product'
-  --       * If there's no 'icons', there's a 'icon' data; make an 'icons' entry from the 'icon' data
+  --         from properties directly on the recipe, in normal, or in expensive; further, the product can come from fluid, item, or child-of-item prototypes in data.raw
+  --       * If there's no 'icons', there's a 'icon' data; make an 'icons' entry from the 'icon' data. Make sure to pull partial information -- like icon_size
   --       * Only make 'pictures' out of 'icons' data if needed for belts
   --   * Pictures can be one of four structures: 
   --       * A spritesheet
@@ -318,18 +361,27 @@ function Build_badge(item, ib_data)
     -- Make `icon` data from the products of a recipe that has no innate `icon` or `icons` data
     if item.type == "recipe" then
       if ((not item.icon) and (not item.icons)) then
-        
         -- Normal vs. Expensive modes: if, for some insane reason, noraml and expensive mode have different result(s)/main_products, the data from item.expensive will be used
         local recipe_data
         if not (item.expensive or item.normal) then recipe_data = item end
         if item.normal then recipe_data = item.normal end
         if item.expensive then recipe_data = item.expensive  end
-        
+
         local product
+        local product_group
         -- Either there's one product, or there's 'main product'
-        if recipe_data.result then product = data.raw.item[recipe_data.result] end
-        if recipe_data.results and #recipe_data.results == 1 then product = data.raw.item[recipe_data.results[1].name] end
-        if recipe_data.main_product then product = data.raw.item[recipe_data.main_product] end
+        if recipe_data.result then 
+          product_group = Get_product_prototype_type(recipe_data.result)
+          product = data.raw[product_group][recipe_data.result]
+        end
+        if recipe_data.results and #recipe_data.results == 1 then 
+          product_group = Get_product_prototype_type(recipe_data.results[1].name)
+          product = data.raw[product_group][recipe_data.results[1].name]
+        end
+        if recipe_data.main_product then 
+          product_group = Get_product_prototype_type(recipe_data.main_product)
+          product = data.raw[product_group][recipe_data.main_product]
+        end
 
         -- Fill in anything
         if not item.icon then item.icon = product.icon end
@@ -413,182 +465,299 @@ function Build_badge(item, ib_data)
     -- pictures
     -- ********
     
-    -- Case: No belt items can have badges. They're absent in pictures by default. Make pictures layers out of icons data without badges.
-    if Ib_global.ib_show_badges == "Only GUI" then
-      if not item.pictures then
-        item.pictures = {
-          layers = {}
-        }
-        for _, icon in pairs(item.icons) do
-          if not icon.is_badge_layer then
-            local icon_size = item.icon_size or icon.size
-            local icon_scale = Ib_global.icon_to_pictures_ratio
-            local newLayer = {}
-            for k, v in pairs(icon) do
-              newLayer[k] = v
+    -- Don't put 'pictures' data on recipes
+    if item.type ~= "recipe" then
+      -- Case: No belt items can have badges. They're absent in pictures by default. Make pictures layers out of icons data without badges.
+      if Ib_global.ib_show_badges == "Only GUI" then
+        if not item.pictures then
+          item.pictures = {
+            layers = {}
+          }
+          for _, icon in pairs(item.icons) do
+            if not icon.is_badge_layer then
+              local icon_size = item.icon_size or icon.size
+              local icon_scale = Ib_global.icon_to_pictures_ratio
+              local newLayer = {}
+              for k, v in pairs(icon) do
+                newLayer[k] = v
+              end
+              newLayer.filename = icon.icon
+              newLayer.size = icon_size
+              newLayer.scale = icon_scale
+              table.insert(item.pictures.layers, newLayer)
             end
-            newLayer.filename = icon.icon
-            newLayer.size = icon_size
-            newLayer.scale = icon_scale
-            table.insert(item.pictures.layers, newLayer)
           end
         end
       end
-    end
 
-    -- Case: All belt items need badges. Icons will already have them. Add badges to things with pictures.
-    if Ib_global.ib_show_badges ~= "Only GUI" then
-      
-      -- If there's picture data already, it's four of the four cases. We'll handle them one at a time.
-      if item.pictures then
+      -- Case: All belt items need badges. Icons will already have them. Add badges to things with pictures.
+      if Ib_global.ib_show_badges ~= "Only GUI" then
         
-        -- If item.pictures is a struct with a sheet entry, make it a spritesheet directly
-        if item.pictures.sheet then
-          item.pictures = table.deepcopy(item.pictures.sheet)
-        end
-
-        -- if item.pictures is not an array, it must be a spritesheet directly OR it must have a layers entry.
-        local oldSpritesheet
-        if not item.pictures[1] then
+        -- If there's picture data already, it's four of the four cases. We'll handle them one at a time.
+        if item.pictures then
           
-          -- Reformatting item.pictures to be an entry in item.pictures.layers.
-          if not item.pictures.layers then
-            wasSpritesheet = true
-            oldSpritesheet = table.deepcopy(item.pictures)
-            item.pictures = {
-              layers = {
-                {
-                  filename = oldSpritesheet.filename,
-                  variation_count = oldSpritesheet.variation_count,
-                  size = oldSpritesheet.size,
-                  width = oldSpritesheet.width,
-                  height = oldSpritesheet.height,
-                  scale = oldSpritesheet.scale,
+          -- If item.pictures is a struct with a sheet entry, make it a spritesheet directly
+          if item.pictures.sheet then
+            item.pictures = table.deepcopy(item.pictures.sheet)
+          end
+
+          -- if item.pictures is not an array, it must be a spritesheet directly OR it must have a layers entry.
+          local oldSpritesheet
+          if not item.pictures[1] then
+            
+            -- Reformatting item.pictures to be an entry in item.pictures.layers.
+            if not item.pictures.layers then
+              wasSpritesheet = true
+              oldSpritesheet = table.deepcopy(item.pictures)
+              item.pictures = {
+                layers = {
+                  {
+                    filename = oldSpritesheet.filename,
+                    variation_count = oldSpritesheet.variation_count,
+                    size = oldSpritesheet.size,
+                    width = oldSpritesheet.width,
+                    height = oldSpritesheet.height,
+                    scale = oldSpritesheet.scale,
+                  }
                 }
               }
-            }
-          end
-          
-          -- Now that item.pictures has (only) a layers property, build badges onto it. 
-          --   * If it was a spritesheet, variation_count and/or repeat_count are needed.
-          --   * If it had a layers property to begin with, the logic will be the same, except 1 will be used instead of variation_count * repeat_count
-          local sheet = item.pictures.layers[1]
-          
-          -- pictures Mipmap Error Logging
-          -- *****************************
-          -- if ((item.pictures.layers[1].mipmap_count and item.pictures.layers[1].mipmap_count ~= mipmapNums) or (not item.pictures.layers[1].mipmap_count and mipmapNums ~= 0))  and log_errors then
-          --   log("(Icon Badges) Mipmap Disagreement! Item name: " .. name .. "    mipmap_count: " .. item.pictures.layers[1].mipmap_count .. "    Current Badge Mipmaps: " .. mipmapNums)
-          -- end
-          
-          -- Build Letter Badges
-          if is_good_letters and not is_good_paths then
-            Build_letter_badge_pictures(item.pictures, ib_data.ib_let_badge, invert_str, (sheet.variation_count or 1) * (sheet.repeat_count or 1), let_corner)
-          end
-
-          -- Build Image Badges
-          if is_good_paths and not is_good_letters then
-            Build_img_badge_pictures(item.pictures, ib_data.ib_img_paths, ib_data.ib_img_size, img_scale, img_mips, (sheet.variation_count or 1) * (sheet.repeat_count or 1), img_corner, ib_data.ib_img_space)
-          end
-
-          -- Build Letter and Image Badges in the correct order
-          if is_good_paths and is_good_letters then
-            if ib_let_on_top then
-              Build_img_badge_pictures(item.pictures, ib_data.ib_img_paths, ib_data.ib_img_size, img_scale, img_mips, (sheet.variation_count or 1) * (sheet.repeat_count or 1), img_corner, ib_data.ib_img_space)
-              Build_letter_badge_pictures(item.pictures, ib_data.ib_let_badge, invert_str, (sheet.variation_count or 1) * (sheet.repeat_count or 1), let_corner)
-            else
-              Build_letter_badge_pictures(item.pictures, ib_data.ib_let_badge, invert_str, (sheet.variation_count or 1) * (sheet.repeat_count or 1), let_corner)
-              Build_img_badge_pictures(item.pictures, ib_data.ib_img_paths, ib_data.ib_img_size, img_scale, img_mips, (sheet.variation_count or 1) * (sheet.repeat_count or 1), img_corner, ib_data.ib_img_space)
             end
-          end
-        else
-          -- if item.pictures is an array of {layer = stuff}, then add badges to each variant.
-          for i, picture in pairs(item.pictures) do
+            
+            -- Now that item.pictures has (only) a layers property, build badges onto it. 
+            --   * If it was a spritesheet, variation_count and/or repeat_count are needed.
+            --   * If it had a layers property to begin with, the logic will be the same, except 1 will be used instead of variation_count * repeat_count
+            local sheet = item.pictures.layers[1]
+            
+            -- pictures Mipmap Error Logging
+            -- *****************************
+            -- if ((item.pictures.layers[1].mipmap_count and item.pictures.layers[1].mipmap_count ~= mipmapNums) or (not item.pictures.layers[1].mipmap_count and mipmapNums ~= 0))  and log_errors then
+            --   log("(Icon Badges) Mipmap Disagreement! Item name: " .. name .. "    mipmap_count: " .. item.pictures.layers[1].mipmap_count .. "    Current Badge Mipmaps: " .. mipmapNums)
+            -- end
+            
             -- Build Letter Badges
             if is_good_letters and not is_good_paths then
-              Build_letter_badge_pictures(picture, ib_data.ib_let_badge, invert_str, 1, let_corner)
+              Build_letter_badge_pictures(item.pictures, ib_data.ib_let_badge, invert_str, (sheet.variation_count or 1) * (sheet.repeat_count or 1), let_corner)
             end
 
             -- Build Image Badges
             if is_good_paths and not is_good_letters then
-              Build_img_badge_pictures(picture, ib_data.ib_img_paths, ib_data.ib_img_size, img_scale, img_mips, 1, img_corner, ib_data.ib_img_space)
+              Build_img_badge_pictures(item.pictures, ib_data.ib_img_paths, ib_data.ib_img_size, img_scale, img_mips, (sheet.variation_count or 1) * (sheet.repeat_count or 1), img_corner, ib_data.ib_img_space)
             end
 
             -- Build Letter and Image Badges in the correct order
             if is_good_paths and is_good_letters then
               if ib_let_on_top then
-                Build_img_badge_pictures(picture, ib_data.ib_img_paths, ib_data.ib_img_size, img_scale, img_mips, 1, img_corner, ib_data.ib_img_space)
-                Build_letter_badge_pictures(picture, ib_data.ib_let_badge, invert_str, 1, let_corner)
+                Build_img_badge_pictures(item.pictures, ib_data.ib_img_paths, ib_data.ib_img_size, img_scale, img_mips, (sheet.variation_count or 1) * (sheet.repeat_count or 1), img_corner, ib_data.ib_img_space)
+                Build_letter_badge_pictures(item.pictures, ib_data.ib_let_badge, invert_str, (sheet.variation_count or 1) * (sheet.repeat_count or 1), let_corner)
               else
+                Build_letter_badge_pictures(item.pictures, ib_data.ib_let_badge, invert_str, (sheet.variation_count or 1) * (sheet.repeat_count or 1), let_corner)
+                Build_img_badge_pictures(item.pictures, ib_data.ib_img_paths, ib_data.ib_img_size, img_scale, img_mips, (sheet.variation_count or 1) * (sheet.repeat_count or 1), img_corner, ib_data.ib_img_space)
+              end
+            end
+          else
+            -- if item.pictures is an array of {layer = stuff}, then add badges to each variant.
+            for i, picture in pairs(item.pictures) do
+              -- Build Letter Badges
+              if is_good_letters and not is_good_paths then
                 Build_letter_badge_pictures(picture, ib_data.ib_let_badge, invert_str, 1, let_corner)
+              end
+
+              -- Build Image Badges
+              if is_good_paths and not is_good_letters then
                 Build_img_badge_pictures(picture, ib_data.ib_img_paths, ib_data.ib_img_size, img_scale, img_mips, 1, img_corner, ib_data.ib_img_space)
+              end
+
+              -- Build Letter and Image Badges in the correct order
+              if is_good_paths and is_good_letters then
+                if ib_let_on_top then
+                  Build_img_badge_pictures(picture, ib_data.ib_img_paths, ib_data.ib_img_size, img_scale, img_mips, 1, img_corner, ib_data.ib_img_space)
+                  Build_letter_badge_pictures(picture, ib_data.ib_let_badge, invert_str, 1, let_corner)
+                else
+                  Build_letter_badge_pictures(picture, ib_data.ib_let_badge, invert_str, 1, let_corner)
+                  Build_img_badge_pictures(picture, ib_data.ib_img_paths, ib_data.ib_img_size, img_scale, img_mips, 1, img_corner, ib_data.ib_img_space)
+                end
+              end
+
+            end
+          end
+        end
+
+        -- If the item (not recipe!) has no pictures property and we need one, build one from the icons data (either what it originally had or what we built above)
+        -- This will exclude badge data, because the only time we need this is when ib_show_badges = "Only Belts".
+        if not item.pictures then
+
+          -- Initialize item.pictures.layers = {}
+          item.pictures = {
+            layers = {}
+          }
+
+          -- Shove data from 'iconss' into the layer property WITHOUT the badge data.
+          for _, icon in pairs(item.icons) do
+            if not icon.is_badge_layer then
+              local icon_size = icon.icon_size -- or icon.size
+              local icon_scale = Ib_global.icon_to_pictures_ratio
+              local icon_mipmaps = icon.icon_mipmaps
+              local icon_tint = icon.tint
+
+              local newLayer = {}
+
+              -- Just pull over all the properties; chose not to do this because it puts unused 'icon' properties in 'pictures'
+              -- for k, v in pairs(icon) do
+              --   newLayer[k] = v
+              -- end
+
+              newLayer.filename = icon.icon
+              newLayer.size = icon_size
+              newLayer.scale = icon_scale
+              newLayer.mipmap_count = icon_mipmaps
+              newLayer.tint = icon_tint
+              newLayer.is_badge_layer = icon.is_badge_layer
+
+              table.insert(item.pictures.layers, newLayer)
+            end
+          end
+
+          -- wait why is this part happening; i just forget and am very tired
+          for _, layer in pairs(item.pictures.layers) do
+            -- Build Letter Badges
+            if is_good_letters and not is_good_paths then
+              Build_letter_badge_pictures(layer, ib_data.ib_let_badge, invert_str, 1, let_corner)
+            end
+
+            -- Build Image Badges
+            if is_good_paths and not is_good_letters then
+              Build_img_badge_pictures(layer, ib_data.ib_img_paths, ib_data.ib_img_size, img_scale, img_mips, 1, img_corner, ib_data.ib_img_space)
+            end
+
+            -- Build Letter and Image Badges in the correct order
+            if is_good_paths and is_good_letters then
+              if ib_let_on_top then
+                Build_img_badge_pictures(layer, ib_data.ib_img_paths, ib_data.ib_img_size, img_scale, img_mips, 1, img_corner, ib_data.ib_img_space)
+                Build_letter_badge_pictures(layer, ib_data.ib_let_badge, invert_str, 1, let_corner)
+              else
+                Build_letter_badge_pictures(layer, ib_data.ib_let_badge, invert_str, 1, let_corner)
+                Build_img_badge_pictures(layer, ib_data.ib_img_paths, ib_data.ib_img_size, img_scale, img_mips, 1, img_corner, ib_data.ib_img_space)
               end
             end
 
           end
         end
       end
+    end
+  end
+end
 
-      -- If the item (not recipe!) has no pictures property and we need one, build one from the icons data (either what it originally had or what we built above)
-      -- This will exclude badge data, because the only time we need this is when ib_show_badges = "Only Belts".
-      if not item.pictures then
 
-        -- Initialize item.pictures.layers = {}
-        item.pictures = {
-          layers = {}
-        }
 
-        -- Shove data from 'iconss' into the layer property WITHOUT the badge data.
-        for _, icon in pairs(item.icons) do
-          if not icon.is_badge_layer then
-            local icon_size = icon.icon_size -- or icon.size
-            local icon_scale = Ib_global.icon_to_pictures_ratio
-            local icon_mipmaps = icon.icon_mipmaps
-            local icon_tint = icon.tint
+-- Badge List Functions
+-- ********************
 
-            local newLayer = {}
+-- This is an optional structure to facilitate easy badging of prototypes. It's what I used for my vanilla badging. 
+--   Modders may use it too if they wish, or instead use the individual function above.
+-- The format for a badge list is: 
+--   badge_list[prototype_group_1] = {["prototype_name_1"] = ib_data, ["prototype_name_2"] = ib_data, ...}
+--   badge_list[prototype_group_2] = {["prototype_name_1"] = ib_data, ["prototype_name_2"] = ib_data, ...}
+--   ...
+--   where:
+--     prototype_group is either fluid, recipe, item, or child-of-item in data.raw
+--     prototype_name is the name of a fluid, recipe, item, or child-of-item in the prototype_group
+--     ib_data is a table with icon badge properties as outline in the readme
 
-            -- Just pull over all the properties; chose not to do this because it puts unused 'icon' properties in 'pictures'
-            -- for k, v in pairs(icon) do
-            --   newLayer[k] = v
-            -- end
+-- Merge Badge List
+-- NOTE: To remove a badge from list1 (i.e. un-badging an item from vanilla), simply set the ib_data = {} for that entry
+-- WARNING: Using this function will overwrite entries in list1 with entries from list2!!!!
+function Merge_badge_lists(list1, list2)
+  -- Sanitize inputs
+  if not (list1 and list2) then 
+    log(Ib_global.log_prefix .. "Called merge_badge_list with nil args.")
+    return nil
+  end
+  if not list1 and type(list2) ~= "table" then     
+    log(Ib_global.log_prefix .. "Called merge_badge_list with nil arg 1 and non-table arg 2.")
+    return nil
+  end
+  if not list2 and type(list1) ~= "table" then     
+    log(Ib_global.log_prefix .. "Called merge_badge_list with non-table arg 1 and nil arg 2.")
+    return nil
+  end
+  if type(list1) ~= "table" and type(list2) ~= "table" then
+    log(Ib_global.log_prefix .. "Called merge_badge_list with non-table arg 1 and arg 2.")
+    return nil
+  end
 
-            newLayer.filename = icon.icon
-            newLayer.size = icon_size
-            newLayer.scale = icon_scale
-            newLayer.mipmap_count = icon_mipmaps
-            newLayer.tint = icon_tint
-            newLayer.is_badge_layer = icon.is_badge_layer
+  -- Initialize new badge_list with contents of first arg (list1)
+  local merged_list = {}
+  for sub_list_name, sub_list_entries in pairs(list1) do
+    merged_list[sub_list_name] = sub_list_entries
+  end
 
-            table.insert(item.pictures.layers, newLayer)
+  -- Add content from second arg (list2)
+  for sub_list_name, sub_list_entries in pairs(list2) do
+    -- Add in any groups that haven't been seen
+    if not merged_list[sub_list_name] then
+      merged_list[sub_list_name] = sub_list_entries
+    else
+      -- Add/Overwrite entries
+      for entry, ib_data in pairs(sub_list_entries) do
+        -- Check to see if ib_data is empty; this will remove the ib_data that was in list1
+        local num_properties = 0
+        if type(ib_data) == "table" then
+          for k, v in pairs(ib_data) do
+            num_properties = num_properties + 1
           end
         end
-
-        -- wait why is this part happening; i just forget and am very tired
-        for _, layer in pairs(item.pictures.layers) do
-          -- Build Letter Badges
-          if is_good_letters and not is_good_paths then
-            Build_letter_badge_pictures(layer, ib_data.ib_let_badge, invert_str, 1, let_corner)
-          end
-
-          -- Build Image Badges
-          if is_good_paths and not is_good_letters then
-            Build_img_badge_pictures(layer, ib_data.ib_img_paths, ib_data.ib_img_size, img_scale, img_mips, 1, img_corner, ib_data.ib_img_space)
-          end
-
-          -- Build Letter and Image Badges in the correct order
-          if is_good_paths and is_good_letters then
-            if ib_let_on_top then
-              Build_img_badge_pictures(layer, ib_data.ib_img_paths, ib_data.ib_img_size, img_scale, img_mips, 1, img_corner, ib_data.ib_img_space)
-              Build_letter_badge_pictures(layer, ib_data.ib_let_badge, invert_str, 1, let_corner)
-            else
-              Build_letter_badge_pictures(layer, ib_data.ib_let_badge, invert_str, 1, let_corner)
-              Build_img_badge_pictures(layer, ib_data.ib_img_paths, ib_data.ib_img_size, img_scale, img_mips, 1, img_corner, ib_data.ib_img_space)
-            end
-          end
-
+        if num_properties == 0 then
+          merged_list[sub_list_name][entry] = nil
+        else
+          -- Overwrite the data from list1 with the contents of list2
+          merged_list[sub_list_name][entry] = ib_data
         end
       end
     end
   end
+  return merged_list
+end
 
+-- Process Badge List
+function Process_badge_list(list)
+  for sub_list_name, sub_list in pairs(list) do
+    for item_name, ib_data in pairs(sub_list) do
+      if data.raw[sub_list_name][item_name] then
+        Build_badge(data.raw[sub_list_name][item_name], ib_data)
+      elseif Ib_global.log_errors then
+        log(Ib_global.log_prefix .. "Item " .. item_name .. " not found in data.raw[" .. sub_list_name .. "]")
+      end
+    end
+  end
+end
+
+
+
+-- DO NOT USE
+-- **********
+-- FIXME : This function doesn't work but this is where it is right now in development.
+-- Unbadge Function
+function Unbadge(item)
+  log("Icon Badges: asdf")
+  if not item.icons then log(Ib_global.log_prefix .. "Prototype has no 'icons' property, and thus hasn't been badged.") end
+  local new_icons = {}
+  for _, icon in pairs(items.icons) do
+    if not icon.is_badge_layer then
+      table.insert(new_icons, icon)
+    end
+  end
+  item.icons = new_icons
+
+  if item.pictures then
+    for _, picture in pairs(item.pictures) do
+      if not picture.layers then log(Ib_global.log_prefix .. "Prototype has pictures property whose structure differs from Icon Badge's structure, and thus hasn't been badged.") end
+      local new_layers = {}
+      for _, layer in pairs(picture.layers) do
+        if not layer.is_badge_layer then
+          table.insert(new_layers, layer)
+        end
+      end
+      picture.layers = new_layers
+    end
+  end
 end

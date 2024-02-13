@@ -12,12 +12,20 @@ Badge_list["item"] = {
   ["iron-plate"]                      = {ib_let_badge = "Fe", },
   ["copper-plate"]                    = {ib_let_badge = "Cu", },
 
+  -- Uraniums
+  ["uranium-235"]                     = {ib_let_badge = "235", },
+  ["uranium-238"]                     = {ib_let_badge = "238", },
+
   -- Ores
   ["iron-ore"]                        = {ib_let_badge = "Fe", },
   ["copper-ore"]                      = {ib_let_badge = "Cu", },
   ["uranium-ore"]                     = {ib_let_badge = "U",  },
   ["coal"]                            = {ib_let_badge = "C",  },
   ["stone"]                           = {ib_let_badge = "S",  },
+
+  -- Boiler and Heat Exchanger
+  ["boiler"]                          = {ib_let_badge = "B",  },
+  ["heat-exchanger"]                  = {ib_let_badge = "HE", },
 
   -- Belts
   ["transport-belt"]                  = {ib_let_badge = "Y",  },
@@ -48,6 +56,7 @@ Badge_list["item"] = {
   ["logistic-chest-requester"]        = {ib_let_badge = "R",  },
 
   -- Barrels
+  ["empty-barrel"]                    = {ib_let_badge = "E",  },
   ["crude-oil-barrel"]                = {ib_let_badge = "C",  },
   ["water-barrel"]                    = {ib_let_badge = "W",  },
   ["light-oil-barrel"]                = {ib_let_badge = "L",  },
@@ -129,10 +138,14 @@ Badge_list["ammo"] = {
   ["atomic-bomb"]                     = {ib_let_badge = "AB", },
 
   -- Cannon Shells
-  ["cannon-shell"]                    = {ib_let_badge = "CS", },
-  ["explosive-cannon-shell"]          = {ib_let_badge = "ES", },
-  ["uranium-cannon-shell"]            = {ib_let_badge = "US", },
+  ["cannon-shell"]                    = {ib_let_badge = "C",  },
+  ["explosive-cannon-shell"]          = {ib_let_badge = "E",  },
+  ["uranium-cannon-shell"]            = {ib_let_badge = "U",  },
   ["explosive-uranium-cannon-shell"]  = {ib_let_badge = "UE", },
+
+  -- Rockets
+  ["heavy-rocket"]                    = {ib_let_badge = "HR", },
+  ["antimatter-rocket"]               = {ib_let_badge = "AR", },
 }
 
 Badge_list["capsule"] = {
@@ -199,7 +212,6 @@ Badge_list["recipe"] = {
   -- Misc
   ["nuclear-fuel"]                    = {ib_let_badge = "NF", },
 }
-
 
 
 

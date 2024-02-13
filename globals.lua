@@ -151,41 +151,5 @@ if Ib_global.ib_zoom_visibility == "Near" then
 end
 
 -- Item types (lists entries in data.raw to check for badge properties)
-Ib_global.item_types = {
-  "item", -- Items
-  "ammo",
-  "capsule",
-  "gun",
-  "module",
-  "tool",
-  "armor",
-  "spidertron-remote",
 
-  "fluid", -- fluids
-
-  "item-with-entity-data", -- entities
-
-  "item-with-tags", -- tools and planners
-  "repair-tool",
-  "mining-tool",
-  "selection-tool",
-  "rail-planner",
-  "upgrade-item",
-  "deconstruction-item",
-  "copy-paste-tool",
-
-  "blueprint", -- blueprints
-  "blueprint-book" ,
-
-  "item-with-inventory", -- abstracts
-  "item-with-label",
-
-  "recipe", -- recipes
-}
-
--- GM dependent variable (debug)
--- if settings.startup["ib-active"] then 
---   Ib_global.ib_active = settings.startup["ib-active"].value
--- else
---   Ib_global.ib_active = true
--- end
+Ib_global.item_types = defines.prototypes.item
