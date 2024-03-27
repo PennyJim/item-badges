@@ -655,13 +655,13 @@ end
 -- This is an optional structure to facilitate easy badging of prototypes. It's what I used for my vanilla badging. 
 --   Modders may use it too if they wish, or instead use the individual function above.
 -- The format for a badge list is: 
---   badge_list[prototype_group_1] = {["prototype_name_1"] = ib_data, ["prototype_name_2"] = ib_data, ...}
---   badge_list[prototype_group_2] = {["prototype_name_1"] = ib_data, ["prototype_name_2"] = ib_data, ...}
+--   badge_list[prototype_group_1] = {["prototype_name_1"] = ib_data_1_1, ["prototype_name_2"] = ib_data_1_2, ...}
+--   badge_list[prototype_group_2] = {["prototype_name_1"] = ib_data_2_1, ["prototype_name_2"] = ib_data_2_2, ...}
 --   ...
 --   where:
 --     prototype_group is either fluid, recipe, item, or child-of-item in data.raw
 --     prototype_name is the name of a fluid, recipe, item, or child-of-item in the prototype_group
---     ib_data is a table with icon badge properties as outline in the readme
+--     ib_data_whatever_whatever is a table with icon badge properties as outline in the readme
 
 -- Merge Badge List
 -- NOTE: To remove a badge from list1 (i.e. un-badging an item from vanilla), simply set the ib_data = {} for that entry

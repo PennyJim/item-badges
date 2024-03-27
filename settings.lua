@@ -1,5 +1,11 @@
 
 data:extend({
+  { -- Activation
+    type = "bool-setting",
+    name = "ib-activation",
+    setting_type = "startup",
+    default_value = true,
+  },
   { -- Badges setting
     type = "string-setting",
     name = "ib-show-badges",
