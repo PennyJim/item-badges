@@ -118,8 +118,10 @@ Ib_global.char_widths = {
   -- [""] = 41,
 }
 
--- Settings variables 
-Ib_global.activation                        = settings.startup["ib-activation"].value
+-- Settings variables
+if mods["galdocs-manufacturing"] then
+  Ib_global.activation                        = settings.startup["ib-activation"].value
+end
 Ib_global.ib_show_badges                    = settings.startup["ib-show-badges"].value
 Ib_global.ib_show_badges_scale              = settings.startup["ib-show-badges-scale"].value
 Ib_global.ib_badge_opacity                  = settings.startup["ib-badge-opacity"].value
