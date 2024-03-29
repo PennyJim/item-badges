@@ -1,46 +1,51 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.1.08
+Date: 3-29-2024
+  Changes:
+    - Various tweaks and bugfixes
+---------------------------------------------------------------------------------------------------
 Version: 1.1.07
-Date: 2-12-2023
+Date: 2-12-2024
   Changes:
     - Various tweaks and bugfixes
 ---------------------------------------------------------------------------------------------------
 Version: 1.1.06
-Date: 2-07-2023
+Date: 2-07-2024
   Changes:
     - Re-tooled the mod to expose Build_badge(prototype, ib_data) function to modders
     - "ib_active" removed, and replaced with ...
     - Ib_global.badge_vanilla is a bool that will turn off IB badging vanilla recipes for overhauls
 ---------------------------------------------------------------------------------------------------
 Version: 1.1.05
-Date: 2-06-2023
+Date: 2-06-2024
   Changes:
     - Implemented "ib_active" for use with Galdoc's Manufacturing
 ---------------------------------------------------------------------------------------------------
 Version: 1.1.04
-Date: 2-06-2023
+Date: 2-06-2024
   Changes:
     - Fixed bug relating to icon_size differing between icon and iconS.
     - Fixed bug relating to normal vs. expensive mode.
 ---------------------------------------------------------------------------------------------------
 Version: 1.1.03
-Date: 1-26-2023
+Date: 1-26-2024
   Changes:
     - Minor refactor for use in Galdoc's Manufacturing; badge creation functions are now available
       to all modders at data.lua stage.
 ---------------------------------------------------------------------------------------------------
 Version: 1.1.02
-Date: 1-24-2023
+Date: 1-24-2024
   Changes:
     - Remembered to comment out my stupid testing line so it doesn't crash on startup
 ---------------------------------------------------------------------------------------------------
 Version: 1.1.01
-Date: 1-24-2023
+Date: 1-24-2024
   Changes:
     - Implemented multiple-image badges
     - Implemented ordering of Image and Letter Badges
 ---------------------------------------------------------------------------------------------------
 Version: 1.1.0
-Date: 1-24-2023
+Date: 1-24-2024
   Changes:
     - Breaking change: ib_badge became ib_let_badge
     - Breaking change: ib_corner became ib_let_corner
@@ -48,12 +53,12 @@ Date: 1-24-2023
     - Implemented Image Badges
 ---------------------------------------------------------------------------------------------------
 Version: 1.0.6
-Date: 1-24-2023
+Date: 1-24-2024
   Changes:
     - Fixed bug with inverted badges
 ---------------------------------------------------------------------------------------------------
 Version: 1.0.5
-Date: 1-23-2023
+Date: 1-23-2024
   Changes:
     - Implemented 3-letter badges
 ---------------------------------------------------------------------------------------------------
