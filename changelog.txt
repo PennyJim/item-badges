@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.1.09
+Date: 4-22-2024
+  Changes:
+    - Fixed crash bug with Galdoc's Manufacturing when set to "Only Belts" because testing amirite
+---------------------------------------------------------------------------------------------------
 Version: 1.1.08
 Date: 3-29-2024
   Changes:

@@ -475,7 +475,7 @@ function Build_badge(item, ib_data)
           }
           for _, icon in pairs(item.icons) do
             if not icon.is_badge_layer then
-              local icon_size = item.icon_size or icon.size
+              local icon_size = item.icon_size or icon.icon_size
               local icon_scale = Ib_global.icon_to_pictures_ratio
               local newLayer = {}
               for k, v in pairs(icon) do

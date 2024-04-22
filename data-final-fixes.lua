@@ -11,4 +11,6 @@ if Ib_global.badge_vanilla then
   end
 end
 
+local a = 1
+
 -- require("icon-badges")
