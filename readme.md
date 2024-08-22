@@ -1,5 +1,5 @@
 # Icon Badges
-## Introduction6
+## Introduction
 **Icon Badges** is a mod for Factorio designed to make icons and recipes easier to distinguish for those with various forms of colorblindness, or for mods that just have tons of similar-looking icons that would benefit from having further distinction from one another..
 Note: Yes, I misnamed the repository 'item-badges'. Augh.
 
