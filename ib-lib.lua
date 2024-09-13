@@ -829,7 +829,6 @@ end
 -- Merge Badge List
 -- NOTE: To remove a badge from list1 (i.e. un-badging an item from vanilla), simply set the ib_data = {} for that entry
 -- WARNING: Using this function will overwrite entries in list1 with entries from list2!!!!
----comment
 ---@param list1 Badge.Badge_list
 ---@param list2 Badge.Badge_list
 ---@return Badge.Badge_list? merged_list
