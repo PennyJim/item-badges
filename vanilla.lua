@@ -4,6 +4,7 @@
 -- This is an example of how to structure badge data. Badge_list is a table of groups in data.raw (fluid, recipe, item, and 
 --   child-of-item prototypes) and each table pairs a prototype name with ib_data properties.
 
+---@type Badge.Badge_list
 Badge_list = {}
 
 -- Item prototypes

@@ -1,3 +1,4 @@
+---@type Badge.Badge_list
 K2_badge_list = {}
 
 -- Item prototypes

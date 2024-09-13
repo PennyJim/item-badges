@@ -297,6 +297,7 @@ end
 ---@param repeat_count int
 ---@param corner Badge.corners?
 function Build_letter_badge_pictures(picture, badge, invert, repeat_count, corner)
+  ---@cast picture data.SpriteSheet
   if not picture.layers then
     local newLayer = table.deepcopy(picture)
     picture.layers = {newLayer}
@@ -385,6 +386,7 @@ end
 ---@param corner Badge.corners?
 ---@param spacing double
 function Build_img_badge_pictures(picture, paths, size, scale, mips, repeat_count, corner, spacing)
+  ---@cast picture data.SpriteSheet
   if not picture.layers then
     local newLayer = table.deepcopy(picture)
     picture.layers = {newLayer}
