@@ -62,7 +62,7 @@ Finally, use the function *Build_badge(prototype, ib_data)* to put your badge on
    The size of the image file.
 
 3. **ib_img_corner** :
-   *(optional)* Behaves perfectly analogously to ib_let_corner. While it can be different from the letter badge corner, there can be only one image badge corner, no matter how many images are referenced in ib_img_paths. Currently, the image badge will always be on top of the letter badge. If there's enough need, I can make this a setting.
+   *(optional)* Behaves perfectly analogously to ib_let_corner. While it can be different from the letter badge corner, there can be only one image badge corner, no matter how many images are referenced in ib_img_paths.
 
 4. **ib_img_mips** :
    *(optional)* The mip levels of the image. By default, it assumes none, but if the image has mipmaps in it, leaving this blank will cause a crash.

@@ -1,14 +1,17 @@
 -- Variables
 -- *********
+
+--TODO: write descriptions for the rest of the global variables
+---@class IB_Global
 Ib_global = {}
 
 -- Badge Vanilla?
-Ib_global.badge_vanilla                     = true
+Ib_global.badge_vanilla                     = true -- Set to false to disable the default badging of vanilla items
 
 -- Debug and Logging
-Ib_global.debug                             = false
-Ib_global.log_errors                        = true
-Ib_global.log_prefix                        = "Icon Badges Error: "
+Ib_global.debug                             = false -- Set to true to enable debug logging
+Ib_global.log_errors                        = true -- Set to false to silence error logging
+Ib_global.log_prefix                        = "Icon Badges Error: " -- What logs are prefixed with
 
 -- Graphical variables
 Ib_global.default_badge_shift_icon          = {-13, -13}
@@ -120,12 +123,12 @@ Ib_global.char_widths = {
 
 -- Settings variables
 if mods["galdocs-manufacturing"] then
-  Ib_global.activation                        = settings.startup["ib-activation"].value
+  Ib_global.activation                        = settings.startup["ib-activation"].value--[[@as boolean]]
 end
-Ib_global.ib_show_badges                    = settings.startup["ib-show-badges"].value
-Ib_global.ib_show_badges_scale              = settings.startup["ib-show-badges-scale"].value
-Ib_global.ib_badge_opacity                  = settings.startup["ib-badge-opacity"].value
-Ib_global.ib_zoom_visibility                = settings.startup["ib-zoom-visibility"].value
+Ib_global.ib_show_badges                    = settings.startup["ib-show-badges"].value--[[@as "Only GUI"|"Only Belts"|"All"]]
+Ib_global.ib_show_badges_scale              = settings.startup["ib-show-badges-scale"].value--[[@as "Tiny"|"Small"|"Average"|"Big"|"Why"]]
+Ib_global.ib_badge_opacity                  = settings.startup["ib-badge-opacity"].value--[[@as float]]
+Ib_global.ib_zoom_visibility                = settings.startup["ib-zoom-visibility"].value--[[@as "Far"|"Medium"|"Near"]]
 
 -- Parsing Badge Scale
 Ib_global.user_badge_scale_table = {

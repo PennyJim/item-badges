@@ -1,22 +1,36 @@
 -- Helper functions
 -- ****************
+
+---@class data.IconData
+---@field is_badge_layer boolean? Whether or not it's a badge layer
+---@class data.SpriteSheet
+---@field is_badge_layer boolean? Whether or not it's a badge layer
+
+-- An unsigned integer with bounds of 0-8192
+---@alias Badge.sprite_size number --|{[1]:data.SpriteSizeType,[2]:data.SpriteSizeType}
+---@alias Badge.justify "center"|"left"|"right"
+---@alias Badge.case ""|"low-"|"cap-"
+---@alias Badge.invert_string ""|"-inv"
+---@alias Badge.corners
+---| "left-bottom"
+---| "right-bottom"
+---| "left-top"
+---| "right-top"
+local valid_corners = {
+  ["left-bottom"] = {1, -1},
+  ["right-bottom"] = {-1, -1},
+  ["left-top"] = {1, 1},
+  ["right-top"] = {-1, 1},
+}
+
+---@param corner valid_badge_corners?
+---@return {[1]:int,[2]:int} direction
 function Corner_to_direction(corner)
-  local direction = {1, 1}
-  if corner == "left-bottom" then
-    direction = {1, -1}
-  end
-  if corner == "right-bottom" then
-    direction = {-1, -1}
-  end
-  if corner == "left-top" then
-    direction = {1, 1}
-  end
-  if corner == "right-top" then
-    direction = {-1, 1}
-  end
-  return direction
+  return valid_corners[corner] or {1,1}
 end
 
+---@param char string A single character string
+---@return Badge.case charindex The index into the character table
 function Get_case(char)
   local case = ""
   if char == string.upper(char) then case = "cap-" end
@@ -25,10 +39,12 @@ function Get_case(char)
   return case
 end
 
-function Parse_char_widths(character)
+---@param char string
+---@return int
+function Parse_char_widths(char)
   local current_width = 0
   for group, width in pairs(Ib_global.char_widths) do
-    local i, j = string.find(group, character)
+    local i, j = string.find(group, char)
     if i then
       current_width = width
     end
@@ -36,14 +52,35 @@ function Parse_char_widths(character)
   return current_width
 end
 
-function Get_product_prototype_type(item)
-  -- This will try to find the product's prototype type -- that is, a 'group' in data.raw, i.e. data.raw['group'] might be data.raw['item'] for a recipe.
-  -- It's often the case that an item name will be in both the 'item' and 'recipe' group. This will favor the item group.
-  --   Ex: If there's a prototype with the name "iron-plate" in the 'item' and 'recipe' groups, this will return 'item'.
-  -- DON'T SEND THIS FUNCTION A RECIPE.
-  -- Known issues: If the name of the prototype is in the 'fluid' group and the 'item' group (or 'child-of-item') then this will favor the item, not the fluid.
-  --   Ex: If there's a prototype with the name "iron-plate" in the 'item' and 'fluid' groups (for some reason), then this will return 'item'.
+---@alias Badge.prototype_types
+---| "recipe"
+---| "fluid"
+---| "blueprint-book"
+---| "copy-paste-tool"
+---| "deconstruction-item"
+---| "item-with-entity-data"
+---| "item-with-inventory"
+---| "item-with-label"
+---| "item-with-tags"
+---| "mining-tool"
+---| "rail-planner"
+---| "repair-tool"
+---| "selection-tool"
+---| "spidertron-remote"
+---| "upgrade-item"
 
+-- This will try to find the product's prototype type -- that is, a 'group' in data.raw, i.e. data.raw['group'] might be data.raw['item'] for a recipe.
+-- It's often the case that an item name will be in both the 'item' and 'recipe' group. This will favor the item group.
+--   Ex: If there's a prototype with the name "iron-plate" in the 'item' and 'recipe' groups, this will return 'item'.
+--
+-- DON'T SEND THIS FUNCTION A RECIPE.
+--
+-- Known issues: If the name of the prototype is in the 'fluid' group and the 'item' group (or 'child-of-item') then this will favor the item, not the fluid.
+--   Ex: If there's a prototype with the name "iron-plate" in the 'item' and 'fluid' groups (for some reason), then this will return 'item'.
+---@param item string
+---@return Badge.prototype_types|"ERROR"
+function Get_product_prototype_type(item)
+  ---@type string
   local current_item_type
 
   -- Check to see if it's one of the non-item and non-child-of-item types
@@ -52,9 +89,9 @@ function Get_product_prototype_type(item)
 
   -- Check if it's an item, and overwrite any result from fluid or recipe
   for item_type, _ in pairs(Ib_global.item_types) do
-      if data.raw[item_type][item] then
-        current_item_type = item_type
-      end
+    if data.raw[item_type][item] then
+      current_item_type = item_type
+    end
   end
 
   -- Log errors
@@ -69,7 +106,7 @@ function Get_product_prototype_type(item)
     log(Ib_global.log_prefix .. "The prototype name was not found in the fluid, item, child-of-item, or recipe subtables of data.raw.")
     return "ERROR"
   end
-  
+
   return current_item_type
 end
 
@@ -77,10 +114,19 @@ end
 
 -- Build Letter and Image Badge functions
 -- **************************************
+
 -- Icons Letter
+--
+-- Credit to Elusive for helping with badges
+---@param letter string The letter being built
+---@param case Badge.case The case of the letter
+---@param invert Badge.invert_string Whether or not the badge is inverted
+---@param justify Badge.justify
+---@param corner Badge.corners? Which corner to build it in
+---@param three_position int? Which position it is if it's for a three character badge
+---@param middle_char string? the center letter if it's a three character badge
+---@return data.IconData
 function Build_single_letter_badge_icon(letter, case, invert, justify, corner, three_position, middle_char)
-  -- Credit to Elusive for helping with badges
-  
   -- One or Two character Shift
   local direction = Corner_to_direction(corner)
   local shift = {
@@ -91,6 +137,7 @@ function Build_single_letter_badge_icon(letter, case, invert, justify, corner, t
   -- Three character Shift (can only be centered (going left-to-right) but can be on top or bottom)
   local three_shift = 0
   if three_position then
+    ---@cast middle_char -?
     direction[1] = math.abs(direction[1]) -- Keeps letters going from left-to-right
     three_shift = Ib_global.three_char_icon_shift[three_position]
     shift = {
@@ -102,13 +149,17 @@ function Build_single_letter_badge_icon(letter, case, invert, justify, corner, t
   return {
     tint = {r = Ib_global.ib_badge_opacity, b = Ib_global.ib_badge_opacity, g = Ib_global.ib_badge_opacity, a = Ib_global.ib_badge_opacity},
     scale = Ib_global.user_badge_scale * Ib_global.default_badge_icon_scale,
-    icon = Ib_global.filepath .. Ib_global.mipmaps .. "/" .. Ib_global.mipmaps .. "-" .. justify .. "-" .. case .. letter .. invert .. ".png", 
+    icon = Ib_global.filepath .. Ib_global.mipmaps .. "/" .. Ib_global.mipmaps .. "-" .. justify .. "-" .. case .. letter .. invert .. ".png",
     icon_size = Ib_global.badge_image_size,
     icon_mipmaps = Ib_global.mipmapNums,
     shift = shift
-  }
+  }--[[@as data.IconData]]
 end
 
+---@param icons data.IconData[]
+---@param let_badge string The badge being built
+---@param invert_str Badge.invert_string
+---@param let_corner Badge.corners?
 function Build_letter_badge_icon(icons, let_badge, invert_str, let_corner)
   -- One letter badge
   if #let_badge == 1 and Ib_global.ib_show_badges ~= "Only Belts" then
@@ -149,10 +200,15 @@ function Build_letter_badge_icon(icons, let_badge, invert_str, let_corner)
   end
 end
 
--- Icons Images
+--- Credit to Elusive for helping with badges
+---@param path string
+---@param size Badge.sprite_size
+---@param scale double
+---@param mips int
+---@param corner Badge.corners?
+---@param spacing double
+---@return data.IconData
 function Build_single_img_badge_icon(path, size, scale, mips, corner, spacing)
-  -- Credit to Elusive for helping with badges
-
   -- Image Shift
   local direction = Corner_to_direction(corner)
   local shift = {
@@ -167,9 +223,16 @@ function Build_single_img_badge_icon(path, size, scale, mips, corner, spacing)
     icon_size = size,
     icon_mipmaps = mips or Ib_global.mipmapNums,
     shift = shift
-  }
+  }--[[@as data.IconData]]
 end
 
+---@param icons data.IconData[]
+---@param paths string[]
+---@param size Badge.sprite_size
+---@param scale double
+---@param mips int
+---@param corner Badge.corners?
+---@param space double?
 function Build_img_badge_icon(icons, paths, size, scale, mips, corner, space)
   local spacing = 0
   for i, path in pairs(paths) do
@@ -180,8 +243,17 @@ function Build_img_badge_icon(icons, paths, size, scale, mips, corner, space)
 end
 
 -- Pictures Letters
+
+-- Credit to Elusive for helping with badges
+---@param letter string
+---@param case Badge.case
+---@param invert Badge.invert_string
+---@param justify Badge.justify
+---@param corner Badge.corners?
+---@param three_position int?
+---@param middle_char string?
+---@return data.SpriteSheet
 function Build_single_letter_badge_pictures(letter, case, invert, justify, corner, three_position, middle_char)
-  -- Credit to Elusive for helping with badges
   
   -- One or Two character Shift
   local direction = Corner_to_direction(corner)
@@ -193,6 +265,7 @@ function Build_single_letter_badge_pictures(letter, case, invert, justify, corne
   -- Three character Shift (can only be centered (going left-to-right) but can be on top or bottom)
   local three_shift = 0
   if three_position then
+    ---@cast middle_char -?
     direction[1] = math.abs(direction[1]) -- Keeps letters going from left-to-right
     three_shift = Ib_global.three_char_icon_shift[three_position]
     shift = {
@@ -208,9 +281,14 @@ function Build_single_letter_badge_pictures(letter, case, invert, justify, corne
     size = Ib_global.badge_image_size,
     mipmap_count = Ib_global.mipmapNums,
     shift = shift
-  }
+  }--[[@as data.SpriteSheet]]
 end
 
+---@param picture data.SpriteVariations
+---@param badge string
+---@param invert Badge.invert_string
+---@param repeat_count int
+---@param corner Badge.corners?
 function Build_letter_badge_pictures(picture, badge, invert, repeat_count, corner)
   if not picture.layers then
     local newLayer = table.deepcopy(picture)
@@ -264,9 +342,16 @@ function Build_letter_badge_pictures(picture, badge, invert, repeat_count, corne
 end
 
 -- Pictures Images
+
+-- Credit to Elusive for helping with badges
+---@param path string
+---@param size Badge.sprite_size
+---@param scale double
+---@param mips int?
+---@param corner Badge.corners?
+---@param spacing double
+---@return data.SpriteSheet
 function Build_single_img_badge_pictures(path, size, scale, mips, corner, spacing)
-  -- Credit to Elusive for helping with badges
-  
   -- Image Shift
   local direction = Corner_to_direction(corner)
   local shift = {
@@ -281,9 +366,17 @@ function Build_single_img_badge_pictures(path, size, scale, mips, corner, spacin
     size = size,
     mipmap_count = mips or Ib_global.mipmapNums,
     shift = shift
-  }
+  }--[[@as data.SpriteSheet]]
 end
 
+---@param picture data.SpriteVariations
+---@param paths string[]
+---@param size Badge.sprite_size
+---@param scale double
+---@param mips int
+---@param repeat_count int
+---@param corner Badge.corners?
+---@param spacing double
 function Build_img_badge_pictures(picture, paths, size, scale, mips, repeat_count, corner, spacing)
   if not picture.layers then
     local newLayer = table.deepcopy(picture)
@@ -301,10 +394,64 @@ function Build_img_badge_pictures(picture, paths, size, scale, mips, repeat_coun
 end
 
 
-
 -- ******************************************************************************************
 -- The most important function that other modders need to care about; srsly this is the candy
 -- ******************************************************************************************
+
+---@class Badge.letter_badge
+---Must be a 1, 2 or 3 character string, consisting of lower- or upper-case letters or numbers (nothing else!).
+---<br>
+---Valid examples: `"AB"`, `"aB"`, `"Ab"`, `"A"`, `"b"`, `"1A"`, `"1"`, `"GUI"`, `"wHy"`.
+---<br>
+---<br>
+---Note: 3-letter badges are always centered horizontally, though they can be put on the top or bottom of the icon.
+---<br>
+---They're just too wide. Use "ib_corner" like normal; it'll work out the rest.
+---@field ib_let_badge string
+---Set to anything that isn't `nil` to invert the text.
+---
+---By default, badges are 'white text with black borders'.
+---<br>
+---To help with collisions, I've also supplied 'black text with white borders.'
+---
+---It's both-or-neither; it's not possible to have one character inverted and another not.
+---@field ib_let_invert? boolean
+---This moves the badge in one of the four corners instead of the upper-left.
+---@field ib_let_corner? Badge.corners
+
+---@class Badge.image_badge
+---Each path should point to the location of the image file.
+---
+---Note: If you have just one path, still enclose it in a table. eg:
+---```lua
+---ib_img_paths = {"whatever.png"}
+---```
+---@field ib_img_paths string[]
+---The size of the image file.
+---@field ib_img_size? Badge.sprite_size
+---This moves the badge in one of the four corners instead of the upper-left.
+---
+---There can be only one image badge corner, no matter how many images are referenced in `ib_img_paths`.
+---@field ib_img_corner? Badge.corners
+---The mip levels of the image. By default, it assumes none, but if the image has mipmaps in it, leaving this blank will cause a crash.
+---@field ib_img_mips? uint8
+---A knob for modders to scale the image badges. This number will potentially differ between images, because the profile of the image may not take up the full (say) 64x64 px canvas.
+---<br>
+---Determine empirically.
+---@field ib_img_scale? double
+---Controls spacing between image badges, one value for all, in pixels. If this is 0, all images will stack on top of one another, in order.
+---@field ib_img_space? double
+
+-- A hack because you cannot inherit from multiple classes (or an alias):
+
+---@class Badge.combined_badge
+---A boolean value that determines if the letter badge should be on top of the image badge. Default is true
+---@field ib_let_on_top? boolean
+
+---@alias Badge.badge_data Badge.letter_badge|Badge.image_badge|Badge.combined_badge
+
+---@param item data.RecipePrototype|data.ItemPrototype|data.FluidPrototype
+---@param ib_data Badge.badge_data
 function Build_badge(item, ib_data)
   -- Cases:
   --   * Items can have some, or all of: 'icon', 'icons' or 'pictures'. Recipes can have 'icon', 'icons' or none of those
@@ -360,27 +507,31 @@ function Build_badge(item, ib_data)
 
     -- Make `icon` data from the products of a recipe that has no innate `icon` or `icons` data
     if item.type == "recipe" then
+      ---@cast item data.RecipePrototype
       if ((not item.icon) and (not item.icons)) then
         -- Normal vs. Expensive modes: if, for some insane reason, noraml and expensive mode have different result(s)/main_products, the data from item.expensive will be used
+        ---@type data.RecipeData
         local recipe_data
-        if not (item.expensive or item.normal) then recipe_data = item end
-        if item.normal then recipe_data = item.normal end
-        if item.expensive then recipe_data = item.expensive  end
+        if not (item.expensive or item.normal) then recipe_data = item--[[@as data.RecipeData]] end
+        if item.normal then recipe_data = item.normal--[[@as data.RecipeData]] end
+        if item.expensive then recipe_data = item.expensive--[[@as data.RecipeData]] end
 
+        ---@type data.ItemPrototype|data.FluidPrototype
         local product
+        ---@type Badge.prototype_types|"ERROR" --FIXME: Not handling ERROR
         local product_group
         -- Either there's one product, or there's 'main product'
         if recipe_data.result then 
           product_group = Get_product_prototype_type(recipe_data.result)
-          product = data.raw[product_group][recipe_data.result]
+          product = data.raw[product_group][recipe_data.result]--[[@as data.ItemPrototype|data.FluidPrototype]]
         end
         if recipe_data.results and #recipe_data.results == 1 then 
           product_group = Get_product_prototype_type(recipe_data.results[1].name)
-          product = data.raw[product_group][recipe_data.results[1].name]
+          product = data.raw[product_group][recipe_data.results[1].name]--[[@as data.ItemPrototype|data.FluidPrototype]]
         end
         if recipe_data.main_product then 
           product_group = Get_product_prototype_type(recipe_data.main_product)
-          product = data.raw[product_group][recipe_data.main_product]
+          product = data.raw[product_group][recipe_data.main_product]--[[@as data.ItemPrototype|data.FluidPrototype]]
         end
 
         -- Fill in anything
@@ -426,7 +577,7 @@ function Build_badge(item, ib_data)
     local img_corner    = ib_data.ib_img_corner or "left-top"
     local img_scale     = ib_data.ib_img_scale  or Ib_global.default_badge_scale_picture
     local img_mips      = ib_data.ib_img_mips   or Ib_global.mipmapNums
-    local ib_let_on_top = true
+    local ib_let_on_top = true --NOTE: `ib_data.ib_let_on_top ~= false` should also work
     if ib_data.ib_let_on_top ~= nil then
       ib_let_on_top = ib_data.ib_let_on_top
     end
@@ -467,6 +618,7 @@ function Build_badge(item, ib_data)
     
     -- Don't put 'pictures' data on recipes
     if item.type ~= "recipe" then
+      ---@cast item data.ItemPrototype|data.FluidPrototype
       -- Case: No belt items can have badges. They're absent in pictures by default. Make pictures layers out of icons data without badges.
       if Ib_global.ib_show_badges == "Only GUI" then
         if not item.pictures then
@@ -477,8 +629,10 @@ function Build_badge(item, ib_data)
             if not icon.is_badge_layer then
               local icon_size = item.icon_size or icon.icon_size
               local icon_scale = Ib_global.icon_to_pictures_ratio
+              ---@type data.SpriteSheet
               local newLayer = {}
-              for k, v in pairs(icon) do
+              for k, v in pairs(icon--[[@as table<any,any>]]) do
+---@diagnostic disable-next-line: no-unknown
                 newLayer[k] = v
               end
               newLayer.filename = icon.icon
@@ -492,23 +646,23 @@ function Build_badge(item, ib_data)
 
       -- Case: All belt items need badges. Icons will already have them. Add badges to things with pictures.
       if Ib_global.ib_show_badges ~= "Only GUI" then
-        
+
         -- If there's picture data already, it's four of the four cases. We'll handle them one at a time.
         if item.pictures then
-          
+          ---@cast item data.ItemPrototype|data.FluidPrototype
+
           -- If item.pictures is a struct with a sheet entry, make it a spritesheet directly
           if item.pictures.sheet then
             item.pictures = table.deepcopy(item.pictures.sheet)
           end
 
           -- if item.pictures is not an array, it must be a spritesheet directly OR it must have a layers entry.
-          local oldSpritesheet
           if not item.pictures[1] then
-            
+
             -- Reformatting item.pictures to be an entry in item.pictures.layers.
             if not item.pictures.layers then
               wasSpritesheet = true
-              oldSpritesheet = table.deepcopy(item.pictures)
+              local oldSpritesheet = table.deepcopy(item.pictures--[[@as data.SpriteVariations]])
               item.pictures = {
                 layers = {
                   {
@@ -522,18 +676,18 @@ function Build_badge(item, ib_data)
                 }
               }
             end
-            
+
             -- Now that item.pictures has (only) a layers property, build badges onto it. 
             --   * If it was a spritesheet, variation_count and/or repeat_count are needed.
             --   * If it had a layers property to begin with, the logic will be the same, except 1 will be used instead of variation_count * repeat_count
             local sheet = item.pictures.layers[1]
-            
+
             -- pictures Mipmap Error Logging
             -- *****************************
             -- if ((item.pictures.layers[1].mipmap_count and item.pictures.layers[1].mipmap_count ~= mipmapNums) or (not item.pictures.layers[1].mipmap_count and mipmapNums ~= 0))  and log_errors then
             --   log("(Icon Badges) Mipmap Disagreement! Item name: " .. name .. "    mipmap_count: " .. item.pictures.layers[1].mipmap_count .. "    Current Badge Mipmaps: " .. mipmapNums)
             -- end
-            
+
             -- Build Letter Badges
             if is_good_letters and not is_good_paths then
               Build_letter_badge_pictures(item.pictures, ib_data.ib_let_badge, invert_str, (sheet.variation_count or 1) * (sheet.repeat_count or 1), let_corner)
@@ -647,7 +801,7 @@ function Build_badge(item, ib_data)
   end
 end
 
-
+---@alias Badge.Badge_list  {[Badge.prototype_types]:table<string,Badge.badge_data>}}
 
 -- Badge List Functions
 -- ********************
@@ -666,6 +820,10 @@ end
 -- Merge Badge List
 -- NOTE: To remove a badge from list1 (i.e. un-badging an item from vanilla), simply set the ib_data = {} for that entry
 -- WARNING: Using this function will overwrite entries in list1 with entries from list2!!!!
+---comment
+---@param list1 Badge.Badge_list
+---@param list2 Badge.Badge_list
+---@return Badge.Badge_list? merged_list
 function Merge_badge_lists(list1, list2)
   -- Sanitize inputs
   if not (list1 and list2) then 
@@ -686,6 +844,7 @@ function Merge_badge_lists(list1, list2)
   end
 
   -- Initialize new badge_list with contents of first arg (list1)
+  ---@type Badge.Badge_list
   local merged_list = {}
   for sub_list_name, sub_list_entries in pairs(list1) do
     merged_list[sub_list_name] = sub_list_entries
@@ -702,7 +861,7 @@ function Merge_badge_lists(list1, list2)
         -- Check to see if ib_data is empty; this will remove the ib_data that was in list1
         local num_properties = 0
         if type(ib_data) == "table" then
-          for k, v in pairs(ib_data) do
+          for k, v in pairs(ib_data--[[@as table<string,any>]]) do
             num_properties = num_properties + 1
           end
         end
@@ -719,6 +878,7 @@ function Merge_badge_lists(list1, list2)
 end
 
 -- Process Badge List
+---@param list Badge.Badge_list
 function Process_badge_list(list)
   for sub_list_name, sub_list in pairs(list) do
     for item_name, ib_data in pairs(sub_list) do
@@ -737,6 +897,7 @@ end
 -- **********
 -- FIXME : This function doesn't work but this is where it is right now in development.
 -- Unbadge Function
+---@deprecated
 function Unbadge(item)
   log("Icon Badges: asdf")
   if not item.icons then log(Ib_global.log_prefix .. "Prototype has no 'icons' property, and thus hasn't been badged.") end
