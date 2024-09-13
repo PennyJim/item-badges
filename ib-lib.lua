@@ -52,6 +52,38 @@ function Parse_char_widths(char)
   return current_width
 end
 
+--- Converts the given SpriteVariations into either a spritesheet
+--- or a Sprite
+---@param picture data.SpriteVariations
+---@return data.SpriteSheet
+---@nodiscard
+function Parse_SpriteVariations(picture)
+  -- Convert the SpriteVariations.struct
+  if picture.sheet then
+    picture.layers = {picture.sheet}
+    picture.sheet = nil
+  end
+  ---@cast picture data.SpriteSheet|data.Sprite[]
+
+  -- Convert into a single layered sprite
+  if picture[1] and Ib_global.log_errors then
+    log(Ib_global.log_prefix.."Currently doesn't support an array of sprites for SpriteVariations")
+  end
+
+  -- Convert into a layered sheet
+  if not picture.layers then
+    local new_layer = table.deepcopy(picture)
+    -- Remove old entries?
+    -- for key in pairs(new_layer) do
+    --   picture[key] = nil
+    -- end
+    picture.layers = {new_layer}
+  end
+  ---@cast picture data.SpriteSheet
+
+  return picture
+end
+
 ---@alias Badge.prototype_types
 ---| "recipe"
 ---| "fluid"
@@ -290,10 +322,7 @@ end
 ---@param repeat_count int
 ---@param corner Badge.corners?
 function Build_letter_badge_pictures(picture, badge, invert, repeat_count, corner)
-  if not picture.layers then
-    local newLayer = table.deepcopy(picture)
-    picture.layers = {newLayer}
-  end
+  picture = Parse_SpriteVariations(picture)
 
   -- One letter badge
   if #badge == 1 then
@@ -378,10 +407,7 @@ end
 ---@param corner Badge.corners?
 ---@param spacing double
 function Build_img_badge_pictures(picture, paths, size, scale, mips, repeat_count, corner, spacing)
-  if not picture.layers then
-    local newLayer = table.deepcopy(picture)
-    picture.layers = {newLayer}
-  end
+  picture = Parse_SpriteVariations(picture)
 
   local current_spacing = 0
   for i, path in pairs(paths) do
@@ -826,21 +852,11 @@ end
 ---@return Badge.Badge_list? merged_list
 function Merge_badge_lists(list1, list2)
   -- Sanitize inputs
-  if not (list1 and list2) then 
-    log(Ib_global.log_prefix .. "Called merge_badge_list with nil args.")
-    return nil
-  end
-  if not list1 and type(list2) ~= "table" then     
-    log(Ib_global.log_prefix .. "Called merge_badge_list with nil arg 1 and non-table arg 2.")
-    return nil
-  end
-  if not list2 and type(list1) ~= "table" then     
-    log(Ib_global.log_prefix .. "Called merge_badge_list with non-table arg 1 and nil arg 2.")
-    return nil
-  end
-  if type(list1) ~= "table" and type(list2) ~= "table" then
-    log(Ib_global.log_prefix .. "Called merge_badge_list with non-table arg 1 and arg 2.")
-    return nil
+  if type(list1) ~= "table" or type(list2) ~= "table" then
+    if Ib_global.log_errors then
+      log(Ib_global.log_prefix .. "Called merge_badge_list with invalid params")
+    end
+    return
   end
 
   -- Initialize new badge_list with contents of first arg (list1)

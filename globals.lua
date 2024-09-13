@@ -143,15 +143,13 @@ Ib_global.user_badge_scale = Ib_global.user_badge_scale_table[Ib_global.ib_show_
 -- Parsing Badge Mipmaps
 Ib_global.mipmaps = "mipAuto"
 Ib_global.mipmapNums = 0
-if Ib_global.ib_zoom_visibility == "Far" then 
+if Ib_global.ib_zoom_visibility == "Far" then
   Ib_global.mipmaps = "mipAuto"
   Ib_global.mipmapNums = 0
-end
-if Ib_global.ib_zoom_visibility == "Medium" then 
+elseif Ib_global.ib_zoom_visibility == "Medium" then
   Ib_global.mipmaps = "mip3"
   Ib_global.mipmapNums = 4
-end
-if Ib_global.ib_zoom_visibility == "Near" then
+elseif Ib_global.ib_zoom_visibility == "Near" then
   Ib_global.mipmaps = "mip2"
   Ib_global.mipmapNums = 4
 end
