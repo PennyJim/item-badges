@@ -16,17 +16,24 @@
 ---| "right-bottom"
 ---| "left-top"
 ---| "right-top"
-local valid_corners = {
-  ["left-bottom"] = {1, -1},
-  ["right-bottom"] = {-1, -1},
-  ["left-top"] = {1, 1},
-  ["right-top"] = {-1, 1},
-}
 
 ---@param corner valid_badge_corners?
 ---@return {[1]:int,[2]:int} direction
 function Corner_to_direction(corner)
-  return valid_corners[corner] or {1,1}
+  local direction = {1, 1}
+  if corner == "left-bottom" then
+    direction = {1, -1}
+  end
+  if corner == "right-bottom" then
+    direction = {-1, -1}
+  end
+  if corner == "left-top" then
+    direction = {1, 1}
+  end
+  if corner == "right-top" then
+    direction = {-1, 1}
+  end
+  return direction
 end
 
 ---@param char string A single character string
